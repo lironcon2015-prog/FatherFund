@@ -35,7 +35,7 @@ function renderReviewStep() {
   if (_reviewStep === 1) {
     box.innerHTML = `<div class="card">
       <div class="card-title">שלב 1 — יחס הכיסוי</div>
-      <div class="hero-num">${ratio(cov.coverageRatio)} ${bandChipHTML(cov.band)}</div>
+      <div class="bento-hero-amount">${ratio(cov.coverageRatio)} ${bandChipHTML(cov.band)}</div>
       <div class="kv"><span>שווי שוק</span><strong>${ils(cov.marketValue)}</strong></div>
       <div class="kv"><span>נדרש לכיסוי (ברוטו)</span><strong>${ils(cov.requiredGross)}</strong></div>
       <div class="kv"><span>נדרש לכיסוי (נטו)</span><strong>${ils(cov.requiredNet)}</strong></div>
@@ -68,7 +68,7 @@ function renderReviewStep() {
     box.innerHTML = `<div class="card">
       <div class="card-title">שלב 3 — פעולות מחוץ למועד מאז הבקרה הקודמת</div>
       <p class="muted">זו הסיבה שהחיכוך קיים. נימוק שנכתב לפני שלוש שנים נקרא אחרת היום.</p>
-      ${offs.length ? `<div class="tbl-wrap"><table class="tbl">
+      ${offs.length ? `<div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>תאריך</th><th>פעולה</th><th>הנימוק שנכתב אז</th></tr></thead>
         <tbody>${offs.map(o => `<tr><td>${dmy(o.at)}</td><td>${escHtml(o.text)}</td>
           <td class="quote-cell">${escHtml((o.meta && o.meta.rationale) || '—')}</td></tr>`).join('')}</tbody>
@@ -163,7 +163,7 @@ function leversHTML(cov) {
       show: true,
     })
   }
-  return `<div class="tbl-wrap"><table class="tbl">
+  return `<div class="tbl-wrap"><table class="data-table">
     <thead><tr><th>מנוף</th><th>המספר</th><th>מה זה אומר</th></tr></thead>
     <tbody>${rows.filter(r => r.show).map(r => `<tr class="${r.blocked ? 'row-blocked' : ''}">
       <td><strong>${escHtml(r.name)}</strong></td><td>${escHtml(r.num)}</td>
@@ -236,7 +236,7 @@ function renderDecisions() {
       <div class="card-title"><span>דגלים לבדיקה</span>
         <button class="btn-ghost" onclick="editFlag()">${uiIcon('plus', 15)} דגל</button></div>
       <p class="muted">האפליקציה לא מנתחת ביטוח לאומי ולא מחשבת מס לצורכי דיווח. דגלים בלבד.</p>
-      ${flags.length ? `<div class="tbl-wrap"><table class="tbl">
+      ${flags.length ? `<div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>תחום</th><th>הדגל</th><th>סטטוס</th><th></th></tr></thead>
         <tbody>${flags.map(f => `<tr>
           <td><span class="chip chip-muted">${escHtml(FLAG_DOMAIN[f.domain] || f.domain)}</span></td>
@@ -351,7 +351,7 @@ function renderAssumptions() {
       כל שינוי כאן מריץ אותו מחדש — הספים אינם כתובים בקוד (R6).</div></div>` : ''}
     <div class="card">
       <div class="card-title">פרמטרים</div>
-      <div class="tbl-wrap"><table class="tbl">
+      <div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>פרמטר</th><th>ערך</th><th></th></tr></thead>
         <tbody>${ASSUMPTION_FIELDS.map(f => `<tr>
           <td>${escHtml(f.label)}</td>
@@ -361,7 +361,7 @@ function renderAssumptions() {
     </div>
     <div class="card">
       <div class="card-title">היסטוריית שינויים</div>
-      ${FUND.assumptionsHistory.length ? `<div class="tbl-wrap"><table class="tbl">
+      ${FUND.assumptionsHistory.length ? `<div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>מתי</th><th>מה</th><th>מ־</th><th>ל־</th><th>נימוק</th></tr></thead>
         <tbody>${[...FUND.assumptionsHistory].reverse().map(h => `<tr>
           <td>${dtLabel(h.at)}</td><td>${escHtml(h.label)}</td>
@@ -415,7 +415,7 @@ function renderJournal() {
       <div class="card-title"><span>יומן</span>
         <button class="btn-ghost" onclick="exportJournalCsv()">${uiIcon('download', 15)} ייצוא CSV</button></div>
       <input id="journalSearch" class="search" placeholder="חיפוש" oninput="filterJournal()">
-      <div class="tbl-wrap"><table class="tbl">
+      <div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>תאריך</th><th>סוג</th><th>מה</th><th>פירוט</th></tr></thead>
         <tbody id="journalRows"></tbody>
       </table></div>
@@ -516,7 +516,7 @@ function renderStorage() {
       <p class="muted">§10.3 — כשסכום הירושה יתברר, כל הספים משתנים. קיבוע נקודת אפס
       חדשה מסמן את המעבר ביומן <strong>בלי למחוק היסטוריה</strong>: ה-snapshots והתנועות
       נשארים, ומועד הבקרה נספר מחדש מהתאריך הזה.</p>
-      ${FUND.zeroPoints.length ? `<div class="tbl-wrap"><table class="tbl">
+      ${FUND.zeroPoints.length ? `<div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>תאריך</th><th>שווי אז</th><th>נימוק</th></tr></thead>
         <tbody>${FUND.zeroPoints.map(z => `<tr><td>${dmy(z.date)}</td><td>${ils(z.marketValue)}</td>
           <td class="quote-cell">${escHtml(z.rationale)}</td></tr>`).join('')}</tbody></table></div>` : ''}
@@ -555,7 +555,7 @@ async function listDriveFiles() {
     ])
     const sec = (title, r) => `<div class="month-block"><div class="month-head"><strong>${title}</strong>
       <span class="muted">${r.files.length}</span></div>
-      ${r.files.length ? `<table class="tbl"><tbody>${r.files.slice(0, 60).map(f =>
+      ${r.files.length ? `<table class="data-table"><tbody>${r.files.slice(0, 60).map(f =>
         `<tr><td>${escHtml(f.name)}</td><td class="muted">${dtLabel(f.modified)}</td></tr>`).join('')}</tbody></table>`
         : '<p class="muted">ריק.</p>'}</div>`
     box.innerHTML = sec('קרן-הקצבה', root) + sec('snapshots', snaps) + sec('reports', reps)

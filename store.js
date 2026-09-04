@@ -138,7 +138,7 @@ function showConflict(r) {
       content: `
         <p>ה-Drive השתנה מאז שהמסך הזה נטען. אין מיזוג אוטומטי — מיזוג של שני
         מצבים שונים היה מייצר היסטוריית בסיס עלות שאינה נכונה באף אחד מהם.</p>
-        <table class="tbl"><thead><tr><th>גרסה</th><th>נכסים</th><th>Snapshots</th><th>תנועות</th><th>נשמר</th></tr></thead>
+        <table class="data-table"><thead><tr><th>גרסה</th><th>נכסים</th><th>Snapshots</th><th>תנועות</th><th>נשמר</th></tr></thead>
         <tbody>${line('המקומית (המסך הזה)', mine)}${line('שבדרייב', theirs)}</tbody></table>
         <p class="muted">בחר גרסה אחת. השנייה לא תימחק מההיסטוריה של ה-snapshots.</p>`,
       actions: [

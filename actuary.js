@@ -28,7 +28,7 @@ function renderActuary() {
         </select></div>
       ${path.depletionAge ? `<div class="banner banner-err">${uiIcon('alert', 18)}<div>
         התיק מתדלדל בגיל ${path.depletionAge.toFixed(1)} בתרחיש הזה.</div></div>` : ''}
-      <div class="tbl-wrap"><table class="tbl">
+      <div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>גיל</th><th>שווי שוק</th><th>בסיס</th><th>רווח צבור</th><th>חבות מס גלומה</th><th>יחס כיסוי</th></tr></thead>
         <tbody>${path.rows.map(r => `<tr>
           <td>${r.age}</td><td>${ils(r.marketValue)}</td><td>${ils(r.costBasis)}</td>
@@ -82,15 +82,15 @@ function renderActuary() {
 function mcHTML(mc) {
   const life = mc.pDepletionInLifetime
   return `
-    <div class="rail">
-      ${tile('הידלדלות עד גיל ' + FUND.assumptions.horizonAge, pct(mc.pDepletionByHorizon))}
-      ${tile('הידלדלות בחיי האב', life === null ? 'לא זמין' : pct(life), life === null ? 'דורש לוח תמותה' : '')}
-      ${tile('ירידה מקסימלית — חציון', pct(mc.drawdown.median))}
-      ${tile('ירידה מקסימלית — אחוזון 5', pct(mc.drawdown.worst5), 'הגרוע ב-5% מהמסלולים')}
+    <div class="bento-rail">
+      ${tile('הידלדלות עד גיל ' + FUND.assumptions.horizonAge, pct(mc.pDepletionByHorizon), '', 'alert')}
+      ${tile('הידלדלות בחיי האב', life === null ? 'לא זמין' : pct(life), life === null ? 'דורש לוח תמותה' : '', 'flag')}
+      ${tile('ירידה מקסימלית — חציון', pct(mc.drawdown.median), '', 'chart')}
+      ${tile('ירידה מקסימלית — אחוזון 5', pct(mc.drawdown.worst5), 'הגרוע ב-5% מהמסלולים', 'arrowdown')}
     </div>
     <p class="muted">ממוצע אריתמטי בשימוש: ${pct(mc.arithmeticMean, 2)} — היעד הגיאומטרי
     ${pct(mc.geometricTarget, 2)} בתוספת σ²/2. בלי התיקון הזה החציון היה יוצא נמוך מהיעד.</p>
-    <div class="tbl-wrap"><table class="tbl">
+    <div class="tbl-wrap"><table class="data-table">
       <thead><tr><th>גיל</th><th>אחוזון 10</th><th>25</th><th>חציון</th><th>75</th><th>90</th></tr></thead>
       <tbody>${mc.bands.filter((_, i) => i % 5 === 0 || i === mc.bands.length - 1).map(b => `<tr>
         <td>${b.age}</td><td>${ils(b.p10)}</td><td>${ils(b.p25)}</td>
@@ -161,7 +161,7 @@ function sensitivityHTML() {
   return axes.map(ax => `
     <div class="month-block">
       <div class="month-head"><strong>${escHtml(ax.title)}</strong></div>
-      <table class="tbl">
+      <table class="data-table">
         <thead><tr><th>ערך</th><th>יחס כיסוי</th><th>רצועה</th><th>גיל הידלדלות (חציוני)</th></tr></thead>
         <tbody>${ax.vals.map(v => {
           const c = covWith(v.over)
@@ -196,7 +196,7 @@ function renderEmployment() {
   out.innerHTML = `
     <div class="kv"><span>ברוטו שנתי</span><strong>${ils(r.annualGross)}</strong></div>
     <div class="kv"><span>חיסכון מס שנתי נטו</span><strong class="${r.annualNetTaxSaving >= 0 ? 'pos' : 'neg'}">${ils(r.annualNetTaxSaving)}</strong></div>
-    <table class="tbl"><thead><tr><th>שנות הפעלה</th><th>תוספת מצטברת</th><th>יחס כיסוי</th><th>מול ${ratio(cov0.coverageRatio)} היום</th></tr></thead>
+    <table class="data-table"><thead><tr><th>שנות הפעלה</th><th>תוספת מצטברת</th><th>יחס כיסוי</th><th>מול ${ratio(cov0.coverageRatio)} היום</th></tr></thead>
       <tbody>${rows.map(x => `<tr><td>${x.years}</td><td>${ils(x.add)}</td>
         <td>${ratio(x.ratio)} ${bandChipHTML(x.band)}</td>
         <td class="${x.ratio >= cov0.coverageRatio ? 'pos' : 'neg'}">${(x.ratio - cov0.coverageRatio >= 0 ? '+' : '') + (x.ratio - cov0.coverageRatio).toFixed(3)}</td></tr>`).join('')}

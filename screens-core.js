@@ -23,25 +23,25 @@ function renderStatus() {
 
   el.innerHTML = `
     ${staleBannerHTML()}
-    <div class="hero card band-${cov.band || 'muted'}">
-      <div class="hero-main">
-        <div class="hero-label">יחס כיסוי</div>
-        <div class="hero-num">${ratio(cov.coverageRatio)}</div>
+    <div class="bento-hero band-${cov.band || 'muted'}">
+      <div class="bento-hero-main">
+        <div class="bento-hero-eyebrow">יחס כיסוי</div>
+        <div class="bento-hero-amount">${ratio(cov.coverageRatio)}</div>
         ${bandChipHTML(cov.band)}
       </div>
-      <div class="hero-side">
+      <div class="bento-hero-mid">
         <div class="hero-line"><span>שווי שוק</span><strong>${ils(t.marketValue)}</strong></div>
         <div class="hero-line"><span>נדרש לכיסוי (ברוטו)</span><strong>${ils(cov.requiredGross)}</strong></div>
-        <div class="hero-line ${cov.gap >= 0 ? 'pos' : 'neg'}"><span>פער</span><strong>${ils(cov.gap)}</strong></div>
-        <div class="hero-note">${cov.years} שנות קצבה עד גיל ${A.horizonAge}, בהיוון ${pct(A.discountRate, 2)}.</div>
+        <div class="hero-line"><span>פער</span><strong class="${cov.gap >= 0 ? 'pos' : 'neg'}">${ils(cov.gap)}</strong></div>
+        <div class="bento-hero-sub">${cov.years} שנות קצבה עד גיל ${A.horizonAge}, בהיוון ${pct(A.discountRate, 2)}.</div>
       </div>
     </div>
 
-    <div class="rail">
-      ${tile('שווי שוק', ils(t.marketValue))}
-      ${tile('בסיס עלות', ils(t.costBasis))}
-      ${tile('רווח צבור', ils(t.accruedGain))}
-      ${tile('חבות מס גלומה', ils(t.deferredTax), t.deferredTax < 0 ? 'הפסד לקיזוז' : `${pct(A.taxRate, 0)} על הרווח`)}
+    <div class="bento-rail">
+      ${tile('שווי שוק', ils(t.marketValue), '', 'wallet')}
+      ${tile('בסיס עלות', ils(t.costBasis), '', 'file')}
+      ${tile('רווח צבור', ils(t.accruedGain), '', 'chart')}
+      ${tile('חבות מס גלומה', ils(t.deferredTax), t.deferredTax < 0 ? 'הפסד לקיזוז' : `${pct(A.taxRate, 0)} על הרווח`, 'lock')}
     </div>
 
     <div class="two-col">
@@ -103,7 +103,7 @@ function refillCardHTML() {
     <div class="kv"><span>הפער</span><strong>${ils(gap)}</strong></div>
     <div class="kv"><span>תשואת הרכיב המנייתי השנה</span><strong>${d.equityReturnYTD === null ? 'לא ניתן לחשב' : pct(d.equityReturnYTD)}</strong></div>
     <div class="banner banner-${cls}">${uiIcon(d.status === 'fill' ? 'check' : 'alert', 18)}<div>${escHtml(d.message)}</div></div>
-    ${d.status === 'fill' ? `<div class="tbl-wrap"><table class="tbl">
+    ${d.status === 'fill' ? `<div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>נכס</th><th>ברוטו</th><th>נטו לרובד</th><th>מס</th></tr></thead>
         <tbody>${d.plan.legs.map(l => `<tr><td>${escHtml(l.name)}</td><td>${ils(l.grossSale)}</td>
           <td>${ils(l.netDelivered)}</td><td>${ils(l.taxAccrued)}</td></tr>`).join('')}</tbody></table></div>
@@ -137,9 +137,13 @@ async function commitRefill(year) {
   navigate('status')
 }
 
-function tile(label, value, note) {
-  return `<div class="tile"><div class="tile-label">${escHtml(label)}</div>
-    <div class="tile-value">${value}</div>${note ? `<div class="tile-note">${escHtml(note)}</div>` : ''}</div>`
+function tile(label, value, note, icon) {
+  return `<div class="bento-stat">
+    <span class="bento-stat-icon">${uiIcon(icon || 'gauge', 15)}</span>
+    <span class="bento-stat-label">${escHtml(label)}</span>
+    <span class="bento-stat-value">${value}</span>
+    ${note ? `<span class="bento-stat-hint">${escHtml(note)}</span>` : ''}
+  </div>`
 }
 
 /**
@@ -220,7 +224,7 @@ function renderPortfolio() {
       </div>
       <p class="muted">אין מחירים בזמן אמת ואין חיבור לברוקר. העדכון ידני ותקופתי, בכוונה —
       תדירות בדיקה נמוכה היא פיצ'ר ולא מגבלה.</p>
-      ${FUND.assets.length ? `<div class="tbl-wrap"><table class="tbl">
+      ${FUND.assets.length ? `<div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>נכס</th><th>שווי שוק</th><th>בסיס עלות</th><th>שינוי מהעדכון הקודם</th><th></th></tr></thead>
         <tbody>${rows}</tbody></table></div>` : emptyHTML('אין נכסים.', 'הוסף נכס ראשון', 'editAsset(null)')}
       ${FUND.assets.length ? `<div class="sheet-actions">
@@ -231,7 +235,7 @@ function renderPortfolio() {
       <div class="card-title">Snapshots</div>
       <p class="muted">כל שמירה יוצרת תמונת מצב בלתי ניתנת לעריכה. תיקון אינו עריכה —
       הוא snapshot חדש עם נימוק (S4).</p>
-      ${FUND.snapshots.length ? `<div class="tbl-wrap"><table class="tbl">
+      ${FUND.snapshots.length ? `<div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>תאריך</th><th>שווי שוק</th><th>מקור</th><th>הערה</th></tr></thead><tbody>
         ${[...FUND.snapshots].reverse().slice(0, 40).map(s => `<tr>
           <td>${dmy(s.date)}</td>
@@ -310,7 +314,7 @@ function reviewPortfolioUpdate() {
     title: 'אישור עדכון תיק',
     width: 'min(640px,95vw)',
     content: `
-      <div class="tbl-wrap"><table class="tbl">
+      <div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>נכס</th><th>מ־</th><th>ל־</th><th>שינוי</th></tr></thead>
         <tbody>${changes.map(c => `<tr class="${c.big ? 'row-warn' : ''}">
           <td>${escHtml(c.asset.name)}</td><td>${ils(c.asset.marketValue)}</td><td>${ils(c.mv)}</td>
@@ -400,7 +404,7 @@ function previewWithdraw() {
         ${uiIcon('alert', 18)}<div><strong>${escHtml(h.rule)}</strong><div>${escHtml(h.message)}</div></div></div>`).join('')}
     <div class="card">
       <div class="card-title">מאיזה נכס, כמה, ולמה</div>
-      <div class="tbl-wrap"><table class="tbl">
+      <div class="tbl-wrap"><table class="data-table">
         <thead><tr><th>#</th><th>נכס</th><th>ברוטו למכירה</th><th>נטו שיתקבל</th><th>רווח ממומש</th><th>מס נצבר</th><th>הסיבה לבחירה</th></tr></thead>
         <tbody>${plan.legs.map(l => `<tr>
           <td>${l.rank}</td>
@@ -505,7 +509,7 @@ function renderPayments() {
         <div class="month-block">
           <div class="month-head"><strong>${m}</strong>
             <span class="muted">קרן ${ils(byMonth[m].fund)} · אחים ${ils(byMonth[m].brothers)}</span></div>
-          <table class="tbl"><tbody>${byMonth[m].rows.sort((a, b) => a.date < b.date ? 1 : -1).map(p => `<tr>
+          <table class="data-table"><tbody>${byMonth[m].rows.sort((a, b) => a.date < b.date ? 1 : -1).map(p => `<tr>
             <td>${dmy(p.date)}</td>
             <td><span class="chip chip-${p.source === 'fund' ? 'accent' : 'muted'}">${p.source === 'fund' ? 'קרן' : 'אחים'}</span></td>
             <td>${ils(p.amount)}</td>

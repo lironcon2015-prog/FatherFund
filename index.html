@@ -18,7 +18,7 @@
   } catch (e) {}
 })()
 </script>
-<link rel="stylesheet" href="style.css?v=1.0.0">
+<link rel="stylesheet" href="style.css?v=1.0.1">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23060608'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%234f8bff' stroke-width='2.5'/%3E%3Cpath d='M16 16l5-4' stroke='%234f8bff' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
@@ -32,28 +32,28 @@
 </nav>
 
 <nav class="bottom-nav" aria-label="ניווט">
-  <a class="bnav-item" data-screen="status" onclick="navigate('status')"><span>מצב</span></a>
-  <a class="bnav-item" data-screen="portfolio" onclick="navigate('portfolio')"><span>תיק</span></a>
-  <a class="bnav-item" data-screen="withdraw" onclick="navigate('withdraw')"><span>משיכה</span></a>
-  <a class="bnav-item" data-screen="payments" onclick="navigate('payments')"><span>תשלומים</span></a>
-  <a class="bnav-item" onclick="toggleMenu()"><span>עוד</span></a>
+  <a class="bnav-item" data-screen="status" onclick="navigate('status')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 12l4.5-3.5"/></svg><span>מצב</span></a>
+  <a class="bnav-item" data-screen="portfolio" onclick="navigate('portfolio')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 12h3"/></svg><span>עדכון תיק</span></a>
+  <a class="bnav-item" data-screen="withdraw" onclick="navigate('withdraw')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13"/><path d="M18 11l-6 6-6-6"/><path d="M4 21h16"/></svg><span>משיכה</span></a>
+  <a class="bnav-item" data-screen="payments" onclick="navigate('payments')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>תשלומים</span></a>
+  <a class="bnav-item" onclick="toggleMenu()"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg><span>עוד</span></a>
 </nav>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMenu()"></div>
 
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">קרן הקצבה<span class="sync-status" style="display:none"></span></div>
+  <div class="sidebar-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 12l4.5-3.5"/><path d="M12 3v2"/></svg>קרן הקצבה<span class="sync-status" style="display:none"></span></div>
   <nav class="sidebar-nav">
-    <a class="nav-link" data-screen="status"      onclick="navigate('status')">מצב</a>
-    <a class="nav-link" data-screen="portfolio"   onclick="navigate('portfolio')">עדכון תיק</a>
-    <a class="nav-link" data-screen="withdraw"    onclick="navigate('withdraw')">משיכה</a>
-    <a class="nav-link" data-screen="payments"    onclick="navigate('payments')">תשלומים</a>
-    <a class="nav-link" data-screen="review"      onclick="navigate('review')">בקרה</a>
-    <a class="nav-link" data-screen="actuary"     onclick="navigate('actuary')">אקטואריה</a>
-    <a class="nav-link" data-screen="decisions"   onclick="navigate('decisions')">החלטות ודגלים</a>
-    <a class="nav-link" data-screen="assumptions" onclick="navigate('assumptions')">הנחות</a>
-    <a class="nav-link" data-screen="journal"     onclick="navigate('journal')">יומן</a>
-    <a class="nav-link" data-screen="storage"     onclick="navigate('storage')">אחסון</a>
+    <a class="nav-link" data-screen="status" onclick="navigate('status')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 12l4.5-3.5"/></svg>מצב</a>
+    <a class="nav-link" data-screen="portfolio" onclick="navigate('portfolio')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 12h3"/></svg>עדכון תיק</a>
+    <a class="nav-link" data-screen="withdraw" onclick="navigate('withdraw')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13"/><path d="M18 11l-6 6-6-6"/><path d="M4 21h16"/></svg>משיכה</a>
+    <a class="nav-link" data-screen="payments" onclick="navigate('payments')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>תשלומים</a>
+    <a class="nav-link" data-screen="review" onclick="navigate('review')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M9 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3"/><path d="M9 12l2 2 4-4"/></svg>בקרה</a>
+    <a class="nav-link" data-screen="actuary" onclick="navigate('actuary')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>אקטואריה</a>
+    <a class="nav-link" data-screen="decisions" onclick="navigate('decisions')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4h12l-2 4 2 4H4"/></svg>החלטות</a>
+    <a class="nav-link" data-screen="assumptions" onclick="navigate('assumptions')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7" cy="18" r="2"/></svg>הנחות</a>
+    <a class="nav-link" data-screen="journal" onclick="navigate('journal')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M8 3v18"/></svg>יומן</a>
+    <a class="nav-link" data-screen="storage" onclick="navigate('storage')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>אחסון</a>
   </nav>
   <div class="sidebar-foot" id="appVersion"></div>
 </aside>
@@ -66,71 +66,71 @@
 
 <main class="main-content">
   <section class="screen" id="screen-status">
-    <div class="page-header"><h1>מצב</h1><p class="page-sub">יחס הכיסוי הוא המספר. אין כאן גרף מהשיא, אין תשואה יומית, ואין השוואה למדד.</p></div>
+    <div class="page-header"><h1 class="page-title">מצב</h1><span class="page-subtitle">יחס הכיסוי הוא המספר. אין כאן גרף מהשיא, אין תשואה יומית, ואין השוואה למדד.</span></div>
     <div id="statusBody"></div>
   </section>
 
   <section class="screen" id="screen-portfolio">
-    <div class="page-header"><h1>עדכון תיק</h1><p class="page-sub">ידני ותקופתי. כל שמירה יוצרת snapshot שאינו ניתן לעריכה.</p></div>
+    <div class="page-header"><h1 class="page-title">עדכון תיק</h1><span class="page-subtitle">ידני ותקופתי. כל שמירה יוצרת snapshot שאינו ניתן לעריכה.</span></div>
     <div id="portfolioBody"></div>
   </section>
 
   <section class="screen" id="screen-withdraw">
-    <div class="page-header"><h1>משיכה</h1><p class="page-sub">מאיזה נכס, כמה ברוטו, כמה מס — ולמה דווקא הוא.</p></div>
+    <div class="page-header"><h1 class="page-title">משיכה</h1><span class="page-subtitle">מאיזה נכס, כמה ברוטו, כמה מס — ולמה דווקא הוא.</span></div>
     <div id="withdrawBody"></div>
   </section>
 
   <section class="screen" id="screen-payments">
-    <div class="page-header"><h1>תשלומים</h1><p class="page-sub">שני הזרמים נרשמים בנפרד גם כשהכול עובר דרך חשבון אחד.</p></div>
+    <div class="page-header"><h1 class="page-title">תשלומים</h1><span class="page-subtitle">שני הזרמים נרשמים בנפרד גם כשהכול עובר דרך חשבון אחד.</span></div>
     <div id="paymentsBody"></div>
   </section>
 
   <section class="screen" id="screen-review">
-    <div class="page-header"><h1>בקרה תלת-שנתית</h1><p class="page-sub">חמישה שלבים. הנימוק בכתב הוא מה שיישאר בעוד שלוש שנים.</p></div>
+    <div class="page-header"><h1 class="page-title">בקרה תלת-שנתית</h1><span class="page-subtitle">חמישה שלבים. הנימוק בכתב הוא מה שיישאר בעוד שלוש שנים.</span></div>
     <div id="reviewBody"></div>
   </section>
 
   <section class="screen" id="screen-actuary">
-    <div class="page-header"><h1>אקטואריה</h1><p class="page-sub">צפייה בלבד. אין מכאן פעולה — ההפרדה בין ניתוח לביצוע מכוונת.</p></div>
+    <div class="page-header"><h1 class="page-title">אקטואריה</h1><span class="page-subtitle">צפייה בלבד. אין מכאן פעולה — ההפרדה בין ניתוח לביצוע מכוונת.</span></div>
     <div id="actuaryBody"></div>
   </section>
 
   <section class="screen" id="screen-decisions">
-    <div class="page-header"><h1>החלטות ודגלים</h1><p class="page-sub">מה הוחלט, מתי, ולמה. פתיחה מחדש נרשמת.</p></div>
+    <div class="page-header"><h1 class="page-title">החלטות ודגלים</h1><span class="page-subtitle">מה הוחלט, מתי, ולמה. פתיחה מחדש נרשמת.</span></div>
     <div id="decisionsBody"></div>
   </section>
 
   <section class="screen" id="screen-assumptions">
-    <div class="page-header"><h1>הנחות</h1><p class="page-sub">כל שינוי מריץ מחדש את הספים. אין מספרים קשיחים בקוד.</p></div>
+    <div class="page-header"><h1 class="page-title">הנחות</h1><span class="page-subtitle">כל שינוי מריץ מחדש את הספים. אין מספרים קשיחים בקוד.</span></div>
     <div id="assumptionsBody"></div>
   </section>
 
   <section class="screen" id="screen-journal">
-    <div class="page-header"><h1>יומן</h1><p class="page-sub">Snapshots, תנועות, תשלומים, בקרות ושינויי הנחות.</p></div>
+    <div class="page-header"><h1 class="page-title">יומן</h1><span class="page-subtitle">Snapshots, תנועות, תשלומים, בקרות ושינויי הנחות.</span></div>
     <div id="journalBody"></div>
   </section>
 
   <section class="screen" id="screen-storage">
-    <div class="page-header"><h1>אחסון</h1><p class="page-sub">Drive הוא מקור האמת. מה שנשמר כאן צריך לשרוד את האפליקציה.</p></div>
+    <div class="page-header"><h1 class="page-title">אחסון</h1><span class="page-subtitle">Drive הוא מקור האמת. מה שנשמר כאן צריך לשרוד את האפליקציה.</span></div>
     <div id="storageBody"></div>
   </section>
 </main>
 
-<script src="model.js?v=1.0.0"></script>
-<script src="engine.js?v=1.0.0"></script>
-<script src="rules.js?v=1.0.0"></script>
-<script src="ui.js?v=1.0.0"></script>
-<script src="drive.js?v=1.0.0"></script>
-<script src="store.js?v=1.0.0"></script>
-<script src="reports.js?v=1.0.0"></script>
-<script src="screens-core.js?v=1.0.0"></script>
-<script src="screens-review.js?v=1.0.0"></script>
-<script src="actuary.js?v=1.0.0"></script>
-<script src="app.js?v=1.0.0"></script>
+<script src="model.js?v=1.0.1"></script>
+<script src="engine.js?v=1.0.1"></script>
+<script src="rules.js?v=1.0.1"></script>
+<script src="ui.js?v=1.0.1"></script>
+<script src="drive.js?v=1.0.1"></script>
+<script src="store.js?v=1.0.1"></script>
+<script src="reports.js?v=1.0.1"></script>
+<script src="screens-core.js?v=1.0.1"></script>
+<script src="screens-review.js?v=1.0.1"></script>
+<script src="actuary.js?v=1.0.1"></script>
+<script src="app.js?v=1.0.1"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=1.0.0', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js?v=1.0.1', { updateViaCache: 'none' })
       .then(reg => reg.update()).catch(() => {})
   })
 }
