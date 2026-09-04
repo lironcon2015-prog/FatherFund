@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#060608">
+<title>קרן הקצבה</title>
+<script>
+/* החלת ערכת נושא לפני הצביעה הראשונה, כדי שלא תהיה הבזקה. */
+(function () {
+  try {
+    var m = localStorage.getItem('uiTheme') || 'system'
+    var light = m === 'light' || (m === 'system' && matchMedia('(prefers-color-scheme: light)').matches)
+    document.documentElement.dataset.theme = light ? 'light' : 'dark'
+  } catch (e) {}
+})()
+</script>
+<link rel="stylesheet" href="style.css?v=1.0.0">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23060608'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%234f8bff' stroke-width='2.5'/%3E%3Cpath d='M16 16l5-4' stroke='%234f8bff' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<nav class="navbar">
+  <button class="nav-menu-btn" onclick="toggleMenu()" aria-label="תפריט">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="nav-brand">קרן הקצבה<span class="sync-status" style="display:none"></span></div>
+</nav>
+
+<nav class="bottom-nav" aria-label="ניווט">
+  <a class="bnav-item" data-screen="status" onclick="navigate('status')"><span>מצב</span></a>
+  <a class="bnav-item" data-screen="portfolio" onclick="navigate('portfolio')"><span>תיק</span></a>
+  <a class="bnav-item" data-screen="withdraw" onclick="navigate('withdraw')"><span>משיכה</span></a>
+  <a class="bnav-item" data-screen="payments" onclick="navigate('payments')"><span>תשלומים</span></a>
+  <a class="bnav-item" onclick="toggleMenu()"><span>עוד</span></a>
+</nav>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMenu()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">קרן הקצבה<span class="sync-status" style="display:none"></span></div>
+  <nav class="sidebar-nav">
+    <a class="nav-link" data-screen="status"      onclick="navigate('status')">מצב</a>
+    <a class="nav-link" data-screen="portfolio"   onclick="navigate('portfolio')">עדכון תיק</a>
+    <a class="nav-link" data-screen="withdraw"    onclick="navigate('withdraw')">משיכה</a>
+    <a class="nav-link" data-screen="payments"    onclick="navigate('payments')">תשלומים</a>
+    <a class="nav-link" data-screen="review"      onclick="navigate('review')">בקרה</a>
+    <a class="nav-link" data-screen="actuary"     onclick="navigate('actuary')">אקטואריה</a>
+    <a class="nav-link" data-screen="decisions"   onclick="navigate('decisions')">החלטות ודגלים</a>
+    <a class="nav-link" data-screen="assumptions" onclick="navigate('assumptions')">הנחות</a>
+    <a class="nav-link" data-screen="journal"     onclick="navigate('journal')">יומן</a>
+    <a class="nav-link" data-screen="storage"     onclick="navigate('storage')">אחסון</a>
+  </nav>
+  <div class="sidebar-foot" id="appVersion"></div>
+</aside>
+
+<!-- S5 — כישלון כתיבה חוסם המשך עבודה. הבאנר קבוע עד שהכתיבה מצליחה. -->
+<div class="write-block" id="writeBlock" style="display:none">
+  <span>הכתיבה האחרונה ל-Drive נכשלה. עבודה שלא נשמרה היא הכשל הגרוע ביותר כאן.</span>
+  <button class="btn-primary" onclick="retryWrite()">נסה שוב</button>
+</div>
+
+<main class="main-content">
+  <section class="screen" id="screen-status">
+    <div class="page-header"><h1>מצב</h1><p class="page-sub">יחס הכיסוי הוא המספר. אין כאן גרף מהשיא, אין תשואה יומית, ואין השוואה למדד.</p></div>
+    <div id="statusBody"></div>
+  </section>
+
+  <section class="screen" id="screen-portfolio">
+    <div class="page-header"><h1>עדכון תיק</h1><p class="page-sub">ידני ותקופתי. כל שמירה יוצרת snapshot שאינו ניתן לעריכה.</p></div>
+    <div id="portfolioBody"></div>
+  </section>
+
+  <section class="screen" id="screen-withdraw">
+    <div class="page-header"><h1>משיכה</h1><p class="page-sub">מאיזה נכס, כמה ברוטו, כמה מס — ולמה דווקא הוא.</p></div>
+    <div id="withdrawBody"></div>
+  </section>
+
+  <section class="screen" id="screen-payments">
+    <div class="page-header"><h1>תשלומים</h1><p class="page-sub">שני הזרמים נרשמים בנפרד גם כשהכול עובר דרך חשבון אחד.</p></div>
+    <div id="paymentsBody"></div>
+  </section>
+
+  <section class="screen" id="screen-review">
+    <div class="page-header"><h1>בקרה תלת-שנתית</h1><p class="page-sub">חמישה שלבים. הנימוק בכתב הוא מה שיישאר בעוד שלוש שנים.</p></div>
+    <div id="reviewBody"></div>
+  </section>
+
+  <section class="screen" id="screen-actuary">
+    <div class="page-header"><h1>אקטואריה</h1><p class="page-sub">צפייה בלבד. אין מכאן פעולה — ההפרדה בין ניתוח לביצוע מכוונת.</p></div>
+    <div id="actuaryBody"></div>
+  </section>
+
+  <section class="screen" id="screen-decisions">
+    <div class="page-header"><h1>החלטות ודגלים</h1><p class="page-sub">מה הוחלט, מתי, ולמה. פתיחה מחדש נרשמת.</p></div>
+    <div id="decisionsBody"></div>
+  </section>
+
+  <section class="screen" id="screen-assumptions">
+    <div class="page-header"><h1>הנחות</h1><p class="page-sub">כל שינוי מריץ מחדש את הספים. אין מספרים קשיחים בקוד.</p></div>
+    <div id="assumptionsBody"></div>
+  </section>
+
+  <section class="screen" id="screen-journal">
+    <div class="page-header"><h1>יומן</h1><p class="page-sub">Snapshots, תנועות, תשלומים, בקרות ושינויי הנחות.</p></div>
+    <div id="journalBody"></div>
+  </section>
+
+  <section class="screen" id="screen-storage">
+    <div class="page-header"><h1>אחסון</h1><p class="page-sub">Drive הוא מקור האמת. מה שנשמר כאן צריך לשרוד את האפליקציה.</p></div>
+    <div id="storageBody"></div>
+  </section>
+</main>
+
+<script src="model.js?v=1.0.0"></script>
+<script src="engine.js?v=1.0.0"></script>
+<script src="rules.js?v=1.0.0"></script>
+<script src="ui.js?v=1.0.0"></script>
+<script src="drive.js?v=1.0.0"></script>
+<script src="store.js?v=1.0.0"></script>
+<script src="reports.js?v=1.0.0"></script>
+<script src="screens-core.js?v=1.0.0"></script>
+<script src="screens-review.js?v=1.0.0"></script>
+<script src="actuary.js?v=1.0.0"></script>
+<script src="app.js?v=1.0.0"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js?v=1.0.0', { updateViaCache: 'none' })
+      .then(reg => reg.update()).catch(() => {})
+  })
+}
+</script>
+</body>
+</html>
