@@ -49,6 +49,9 @@ function bandSpan(band) {
 async function deliverReport(filename, title, html, folder) {
   const w = window.open('', '_blank')
   if (w) { w.document.write(html); w.document.close() }
+  // חוסם חלונות קופצים — הדוח כבר קיים, רק לא נפתח. מציינים את זה במפורש
+  // כדי שלא ייראה כאילו הפעולה נכשלה.
+  const blocked = !w ? ' החלון נחסם — השתמש בכפתור ההורדה.' : ''
   let saved = ''
   if (FundDrive.configured()) {
     try {
@@ -58,7 +61,7 @@ async function deliverReport(filename, title, html, folder) {
   }
   journal('report', 'הופק ' + filename)
   await saveFund()
-  toast('הדוח הופק. ' + saved, { type: 'success', duration: 7000,
+  toast('הדוח הופק. ' + saved + blocked, { type: 'success', duration: 7000,
     action: { label: 'הורד', onClick: () => downloadBlob(new Blob([html], { type: 'text/html' }), filename) } })
 }
 

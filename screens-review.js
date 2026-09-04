@@ -5,14 +5,11 @@
 /* ===================== מסך 5 — בקרה תלת-שנתית ===================== */
 
 let _reviewStep = 1
-let _reviewDraft = null
 
 function renderReview() {
   const el = document.getElementById('reviewBody')
   if (!FUND.assets.length) { el.innerHTML = emptyHTML('אין נכסים בתיק.', 'עדכון תיק', "navigate('portfolio')"); return }
   const w = reviewWindow(FUND)
-  if (!_reviewDraft) _reviewDraft = { action: '', rationale: '', startedAt: nowISO() }
-
   const offSchedule = !w.inWindow
   el.innerHTML = `
     ${staleBannerHTML()}
@@ -148,7 +145,9 @@ function leversHTML(cov) {
     name: 'העלאת קצבה',
     num: inc.length ? 'חסום' : ils(Math.max(0, pensionAt1)) + ' לחודש',
     note: inc.length ? inc[0].message : 'מותר מגיל 78 ומעלה. המספר הוא התקרה ביחס כיסוי 1.00.',
-    show: cov.band === 'green' || !inc.length, blocked: !!inc.length,
+    /* מוצג גם כשהוא חסום. R4 חוסם **ומסביר** — מנוף שנעלם מהטבלה נקרא כאילו
+       איש לא שקל אותו, ושלוש שנים אחר כך הוא נשאל שוב מאפס. */
+    show: true, blocked: !!inc.length,
   })
   const drift = mixDrift(FUND.assets, C)
   rows.push({
@@ -195,7 +194,7 @@ async function commitReview() {
   journal('review', `בקרה — יחס ${ratio(cov.coverageRatio)} · ${rec.actionTaken}`,
     { rationale, offSchedule: rec.offSchedule })
   await saveFund('בקרה')
-  _reviewDraft = null; _reviewStep = 1
+  _reviewStep = 1
   await buildReportB(rec)
   toast('הבקרה נסגרה ודוח B הופק. מומלץ לבצע ייצוא ידני מלא (S6).', { type: 'success', duration: 8000,
     action: { label: 'ייצוא', onClick: () => exportFundZip() } })
@@ -411,27 +410,34 @@ function editAssumption(path) {
 
 function renderJournal() {
   const el = document.getElementById('journalBody')
-  const q = (document.getElementById('journalSearch') || {}).value || ''
-  const rows = collectJournalRows()
-  const filtered = q ? rows.filter(r => (r.what + ' ' + r.detail).toLowerCase().includes(q.toLowerCase())) : rows
-
   el.innerHTML = `
     <div class="card">
       <div class="card-title"><span>יומן</span>
         <button class="btn-ghost" onclick="exportJournalCsv()">${uiIcon('download', 15)} ייצוא CSV</button></div>
-      <input id="journalSearch" class="search" placeholder="חיפוש" value="${escAttr(q)}" oninput="renderJournal()">
+      <input id="journalSearch" class="search" placeholder="חיפוש" oninput="filterJournal()">
       <div class="tbl-wrap"><table class="tbl">
         <thead><tr><th>תאריך</th><th>סוג</th><th>מה</th><th>פירוט</th></tr></thead>
-        <tbody>${filtered.slice(0, 500).map(r => `<tr>
-          <td>${dtLabel(r.at)}</td>
-          <td><span class="chip chip-muted">${escHtml(r.kind)}</span></td>
-          <td>${escHtml(r.what)}</td>
-          <td class="muted quote-cell">${escHtml(r.detail)}</td></tr>`).join('')}</tbody>
+        <tbody id="journalRows"></tbody>
       </table></div>
-      ${filtered.length > 500 ? `<p class="muted">מוצגות 500 מתוך ${filtered.length}. השתמש בייצוא לרשימה המלאה.</p>` : ''}
+      <p class="muted" id="journalCount"></p>
     </div>`
-  const s = document.getElementById('journalSearch')
-  if (q && s) { s.focus(); s.setSelectionRange(q.length, q.length) }
+  filterJournal()
+}
+
+/* ההקלדה לא עוברת ב-renderJournal(): רינדור מלא היה מחליף את ה-input באמצע
+   הקלדה והסמן היה קופץ להתחלה. נכתבות רק השורות והמונה. */
+function filterJournal() {
+  const q = ((document.getElementById('journalSearch') || {}).value || '').trim().toLowerCase()
+  const rows = collectJournalRows()
+  const filtered = q ? rows.filter(r => (r.what + ' ' + r.detail).toLowerCase().includes(q)) : rows
+  document.getElementById('journalRows').innerHTML = filtered.slice(0, 500).map(r => `<tr>
+      <td>${dtLabel(r.at)}</td>
+      <td><span class="chip chip-muted">${escHtml(r.kind)}</span></td>
+      <td>${escHtml(r.what)}</td>
+      <td class="muted quote-cell">${escHtml(r.detail)}</td></tr>`).join('')
+  document.getElementById('journalCount').textContent = filtered.length > 500
+    ? `מוצגות 500 מתוך ${filtered.length}. השתמש בייצוא לרשימה המלאה.`
+    : `${filtered.length} רשומות.`
 }
 
 const JOURNAL_KIND = {

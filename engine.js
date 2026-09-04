@@ -354,7 +354,6 @@ function medianPath(state, opts) {
   pushRow(age)
 
   let depletionAge = null
-  let yearEquityStart = assets.filter(a => a.class === 'equity').reduce((s, a) => s + a.marketValue, 0)
 
   for (let y = 0; y < untilAge - age && !depletionAge; y++) {
     const thisAge = age + y
@@ -390,7 +389,6 @@ function medianPath(state, opts) {
         }
       }
     }
-    yearEquityStart = eqNow
     pushRow(thisAge + 1)
   }
 

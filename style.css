@@ -95,6 +95,8 @@ code { font-family: ui-monospace, monospace; font-size: .88em; background: var(-
   font-weight: 700; font-size: .95rem; margin-bottom: .7rem;
   display: flex; align-items: center; justify-content: space-between; gap: .6rem; flex-wrap: wrap;
 }
+/* פקד בתוך כותרת כרטיס לא נמתח לרוחב מלא — input/select ברירת המחדל היא 100%. */
+.card-title select, .card-title input { width: auto; min-width: 11rem; }
 .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.1rem; }
 .two-col > .card { margin-bottom: 0; }
 
