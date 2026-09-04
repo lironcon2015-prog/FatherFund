@@ -2,7 +2,7 @@
    app.js — עיצוב מספרים, ניווט, אתחול.
    =========================================================================== */
 
-const APP_VERSION = '1.0.0'
+const APP_VERSION = '1.0.1'
 
 /* ===== פורמט ===== */
 function ils(n, digits) {
@@ -91,8 +91,12 @@ function bandChipHTML(band) {
 }
 
 function emptyHTML(text, actionLabel, actionFn) {
-  return `<div class="empty">${uiIcon('file', 28)}<p>${escHtml(text)}</p>${
-    actionLabel ? `<button class="btn-primary" onclick="${actionFn}">${escHtml(actionLabel)}</button>` : ''}</div>`
+  return `<div class="empty-state">
+    <span class="empty-state-icon">${uiIcon('file', 30)}</span>
+    <p class="empty-state-text">${escHtml(text)}</p>
+    ${actionLabel ? `<div class="empty-state-actions">
+      <button class="btn-primary" onclick="${actionFn}">${escHtml(actionLabel)}</button></div>` : ''}
+  </div>`
 }
 
 /* ===== אתחול ===== */
