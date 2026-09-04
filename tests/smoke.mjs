@@ -77,6 +77,41 @@ const wd = await page.locator('#wdPreview').innerText()
 if (!/רובד נזילות/.test(wd)) errors.push('סדר המשיכה לא הציג את רובד הנזילות ראשון')
 process.stdout.write('  משיכה ✓\n')
 
+// נקודת פתיחה: קובץ תקין, קובץ שגוי, והטעינה בפועל
+const seedOk = {
+  schema: 'fund-seed/1', generatedAt: '2026-09-05', note: 'בדיקה',
+  assets: [
+    { name: 'רובד נזילות', class: 'cash', region: 'n/a', marketValue: 25600, costBasis: 25600 },
+    { name: 'מנייתי גלובלי', class: 'equity', region: 'global', marketValue: 336000, costBasis: 252000 },
+  ],
+  assumptions: { taxRate: 0.25 },
+  config: { pensionFromFund: 1300 },
+  decisions: [{ title: 'הרשאות חירום', status: 'open', rationale: 'מי מקבל גישה' }],
+}
+await page.evaluate(o => { navigate('storage'); showSeedPreview(parseFundSeed(o), 'seed.json') }, seedOk)
+await page.waitForTimeout(150)
+const okSheet = await page.locator('.modal-box').innerText()
+if (!/הקובץ תקין/.test(okSheet)) errors.push('תצוגה מקדימה של קובץ תקין לא הופיעה')
+await page.evaluate(() => document.querySelector('.modal-close').click())
+
+const seedBad = JSON.parse(JSON.stringify(seedOk))
+seedBad.assumptions.taxRate = 25
+await page.evaluate(o => showSeedPreview(parseFundSeed(o), 'bad.json'), seedBad)
+await page.waitForTimeout(150)
+const badSheet = await page.locator('.modal-box').innerText()
+if (!/נדחה/.test(badSheet) || !/0\.25/.test(badSheet)) errors.push('קובץ עם שיעור באחוזים לא נדחה כראוי')
+await page.evaluate(() => document.querySelector('.modal-close').click())
+
+await page.evaluate(o => commitSeed(parseFundSeed(o)), seedOk)
+await page.waitForTimeout(400)
+const after = await page.evaluate(() => ({ assets: FUND.assets.length, snaps: FUND.snapshots.length, zero: FUND.zeroPoints.length, tax: FUND.assumptions.taxRate }))
+if (after.assets !== 2 || after.snaps !== 1 || after.zero !== 1 || after.tax !== 0.25) {
+  errors.push('טעינת נקודת פתיחה לא יצרה מצב תקין: ' + JSON.stringify(after))
+}
+const statusTxt = await page.locator('#screen-status').innerText()
+if (!/יחס כיסוי/.test(statusTxt)) errors.push('מסך המצב לא התרנדר אחרי הטעינה')
+process.stdout.write('  נקודת פתיחה ✓\n')
+
 await browser.close()
 if (errors.length) { console.error('\nכשלים:\n' + errors.join('\n')); process.exit(1) }
 console.log('\nsmoke עבר.')

@@ -502,13 +502,26 @@ function renderStorage() {
     </div>
 
     <div class="card">
-      <div class="card-title">ייצוא ידני מלא</div>
+      <div class="card-title">נקודת פתיחה מקובץ</div>
+      <p class="muted">קובץ JSON פשוט שמכיל את מה שכבר ידוע — נכסים, בסיס עלות, הנחות,
+      תשלומים, החלטות ודגלים. נטען פעם אחת במקום הזנה ידנית, ויוצר את ה-snapshot הראשון.
+      ההנחיה להכנת הקובץ נמצאת ב-<code>docs/הנחיה-ליועץ.md</code>.</p>
+      <div class="sheet-actions">
+        <button class="btn-primary" onclick="importFundSeed()">${uiIcon('download', 15)} טען נקודת פתיחה</button>
+        <button class="btn-ghost" onclick="downloadSeedTemplate()">הורד תבנית ריקה</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ייצוא ושחזור מלא</div>
       <p class="muted">S6 — ZIP של המצב וכל ה-snapshots. זמין תמיד, ומומלץ בסוף כל בקרה.
       ה-JSON קריא גם אם האפליקציה הזו תפסיק לעבוד בעוד שמונה שנים.</p>
       <div class="sheet-actions">
         <button class="btn-primary" onclick="exportFundZip()">${uiIcon('download', 15)} ייצא ZIP</button>
-        <button class="btn-ghost" onclick="importFundJson()">ייבוא מקובץ</button>
+        <button class="btn-ghost" onclick="importFundJson()">שחזר מ-fund-state.json</button>
       </div>
+      <p class="muted">השחזור מצפה למצב מלא שיצא מהאפליקציה. לקובץ שהוכן ביד או
+      במודל — השתמש ב"נקודת פתיחה" למעלה.</p>
     </div>
 
     <div class="card">
@@ -562,6 +575,110 @@ async function listDriveFiles() {
   } catch (e) {
     box.textContent = e.message
   }
+}
+
+/* ===== נקודת פתיחה =====
+   מסלול נפרד מהשחזור בכוונה. שחזור מקבל מצב מלא שהאפליקציה עצמה כתבה;
+   נקודת פתיחה מקבלת קובץ שאדם או מודל הרכיבו, ולכן היא בודקת אותו לעומק
+   ומציגה את מה שנמצא **לפני** שהוא נוגע במשהו. */
+function importFundSeed() {
+  const inp = document.createElement('input')
+  inp.type = 'file'; inp.accept = '.json,application/json'
+  inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return
+    let raw
+    try { raw = JSON.parse(await f.text()) }
+    catch (e) { toast('הקובץ אינו JSON תקין: ' + e.message, { type: 'error', duration: 8000 }); return }
+    showSeedPreview(parseFundSeed(raw), f.name)
+  }
+  inp.click()
+}
+
+function showSeedPreview(parsed, filename) {
+  const s = parsed.summary
+  const list = (items, cls) => items.length
+    ? `<ul class="seed-list ${cls}">${items.map(x => `<li>${escHtml(x)}</li>`).join('')}</ul>` : ''
+
+  const body = parsed.ok ? `
+    <div class="banner banner-ok">${uiIcon('check', 18)}<div>
+      <strong>הקובץ תקין.</strong>
+      <div>${escHtml(filename)}${s.generatedAt ? ` · נוצר ${escHtml(s.generatedAt)}` : ''}</div></div></div>
+    ${s.note ? `<div class="quote">${escHtml(s.note)}</div>` : ''}
+    <table class="data-table"><tbody>
+      <tr><td>נכסים</td><td><strong>${s.assets}</strong></td></tr>
+      <tr><td>שווי שוק</td><td><strong>${ils(s.marketValue)}</strong></td></tr>
+      <tr><td>בסיס עלות</td><td><strong>${ils(s.costBasis)}</strong></td></tr>
+      <tr><td>רווח צבור</td><td><strong>${ils(s.marketValue - s.costBasis)}</strong></td></tr>
+      <tr><td>הנחות שהוזנו</td><td>${s.assumptions} (השאר — ברירת מחדל)</td></tr>
+      <tr><td>פרמטרי תצורה</td><td>${s.config} (השאר — ברירת מחדל)</td></tr>
+      <tr><td>תשלומים · החלטות · דגלים</td><td>${s.payments} · ${s.decisions} · ${s.flags}</td></tr>
+      <tr><td>נקודת אפס · לוח תמותה</td><td>${s.zeroPoint ? 'כן' : 'לא'} · ${s.mortality ? 'כן' : 'לא'}</td></tr>
+    </tbody></table>` : `
+    <div class="banner banner-err">${uiIcon('alert', 18)}<div>
+      <strong>הקובץ נדחה. לא בוצע שינוי.</strong>
+      <div>${parsed.errors.length} בעיות. שלח את הרשימה בחזרה למי שהכין את הקובץ.</div></div></div>
+    ${list(parsed.errors, 'seed-err')}`
+
+  const warn = parsed.warnings.length
+    ? `<div class="banner banner-warn">${uiIcon('alert', 18)}<div><strong>שים לב</strong>
+         <div>מה שלא נקלט מוצג כאן במפורש, ולא נבלע בשקט.</div></div></div>${list(parsed.warnings, 'seed-warn')}`
+    : ''
+
+  const hasState = FUND.assets.length || FUND.snapshots.length
+  UK_sheet({
+    title: 'נקודת פתיחה',
+    width: 'min(660px,95vw)',
+    content: body + warn + (parsed.ok && hasState ? `
+      <div class="banner banner-err">${uiIcon('alert', 18)}<div>
+        <strong>כבר קיימים נתונים.</strong>
+        <div>בקרן יש ${FUND.assets.length} נכסים ו-${FUND.snapshots.length} snapshots.
+        טעינת נקודת פתיחה מחליפה אותם. ה-snapshots שכבר נכתבו לדרייב אינם נמחקים —
+        הם append-only — אבל המצב החי יוחלף.</div></div></div>` : ''),
+    actions: parsed.ok
+      ? [{ label: hasState ? 'החלף את המצב הקיים' : 'טען', primary: !hasState,
+           className: hasState ? 'btn-danger' : 'btn-primary',
+           onClick: () => commitSeed(parsed) },
+         { label: 'בטל' }]
+      : [{ label: 'העתק את השגיאות', onClick: () => {
+            navigator.clipboard.writeText(parsed.errors.join('\n')).then(
+              () => toast('הועתק.', { type: 'success' }),
+              () => toast('ההעתקה נכשלה.', { type: 'error' }))
+            return true
+          } },
+         { label: 'סגור' }],
+  })
+}
+
+async function commitSeed(parsed) {
+  if (!assertWritable()) return
+  FUND = applyFundSeed(parsed)
+  journal('sync', `נקודת פתיחה נטענה — ${parsed.summary.assets} נכסים · ${ils(parsed.summary.marketValue)}`,
+    { rationale: parsed.summary.note || null })
+  const r = await saveFund('נקודת פתיחה')
+  if (r.ok && FundDrive.configured()) {
+    const snap = FUND.snapshots[0]
+    try { await FundDrive.putSnapshot(`${snap.date}.json`, snap) } catch (e) {
+      toast('ה-snapshot הנפרד לא נכתב: ' + e.message, { type: 'error', duration: 8000 })
+    }
+  }
+  toast('נקודת הפתיחה נטענה.', { type: 'success' })
+  navigate('status')
+}
+
+function downloadSeedTemplate() {
+  const tpl = {
+    schema: SEED_SCHEMA,
+    generatedAt: todayISO(),
+    note: 'תיאור קצר של מקור הנתונים ותאריך התוקף שלהם.',
+    assets: [
+      { name: 'רובד נזילות', class: 'cash', region: 'n/a', marketValue: 0, costBasis: 0 },
+      { name: 'מנייתי גלובלי', class: 'equity', region: 'global', marketValue: 0, costBasis: 0, isLegacy: false },
+    ],
+    assumptions: { taxRate: 0.25, discountRate: 0.0345, horizonAge: 95, fatherBirthYear: 1957 },
+    config: { pensionFromFund: 1300, pensionFromBrothers: 1000, bulletAmount: 10000, bulletMonth: 6, rungTarget: 25600 },
+    payments: [], decisions: [], flags: [],
+  }
+  downloadBlob(new Blob([JSON.stringify(tpl, null, 2)], { type: 'application/json' }), 'fund-seed-template.json')
 }
 
 function importFundJson() {

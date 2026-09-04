@@ -397,6 +397,12 @@ textarea { resize: vertical; }
 .rule-hit.sev-medium { background: var(--warn-bg); border-color: var(--warn); }
 .rule-tag { font-weight: 800; flex: none; }
 
+/* ===== רשימת ממצאים בייבוא ===== */
+.seed-list { margin: .2rem 0 .9rem; padding-inline-start: 1.2rem; font-size: .85rem; line-height: 1.6; }
+.seed-list li { margin-bottom: .2rem; }
+.seed-err li { color: var(--expense); }
+.seed-warn li { color: var(--warn); }
+
 /* ===== טוסט ===== */
 .toast-stack {
   position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
