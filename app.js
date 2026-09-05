@@ -2,7 +2,7 @@
    app.js — עיצוב מספרים, ניווט, אתחול.
    =========================================================================== */
 
-const APP_VERSION = '1.1.0'
+const APP_VERSION = '1.1.1'
 
 /* ===== פורמט ===== */
 function ils(n, digits) {
@@ -101,6 +101,7 @@ function emptyHTML(text, actionLabel, actionFn) {
 
 /* ===== אתחול ===== */
 async function boot() {
+  applyFundMark()
   document.getElementById('appVersion').textContent = 'גרסה ' + APP_VERSION
   await loadFund()
   const s = location.hash.slice(1)

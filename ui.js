@@ -11,6 +11,51 @@ function escAttr(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 }
 
+/* ===== סימן האפליקציה =====
+   שלושת הסימנים שהוצעו ב-mockups/app-icon.html. הבחירה היא קבוע אחד, ומשם
+   נגזרים תג ה-rail, ה-favicon ואייקוני ה-PWA — כדי שלא תיווצר גרסה שבה
+   הלשונית מראה סימן אחד והאפליקציה סימן אחר. */
+const FUND_MARKS = {
+  /* רובד — שלוש שכבות, התחתונה רחבה ומלאה. המנגנון. */
+  rung: '<path d="M8.5 7h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      + '<path d="M6.5 12h11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      + '<rect x="4" y="15.8" width="16" height="3.4" rx="1.7" fill="currentColor"/>',
+  /* קשת הכיסוי — טבעת של 300° שנשברת בסף. הפתח בתחתית והשבר בראש הם מה
+     שהופך אותה לחוגה ולא לכיפה; קשת של 180° נקראה ככיפה ולא כמדד. */
+  arc:  '<path d="M8 19.9A8 8 0 0 1 10.6 5.1" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>'
+      + '<path d="M13.4 5.1A8 8 0 0 1 16 19.9" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>'
+      + '<circle cx="12" cy="4.6" r="1.75" fill="currentColor"/>',
+  /* גשר — קשת שעומדת על קרקע וגושרת על מפתח. המטרה. */
+  arch: '<path d="M6 20v-7a6 6 0 0 1 12 0v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      + '<path d="M3 20h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+}
+
+/* ← ההחלפה היחידה שנדרשת כדי לבחור סימן אחר. */
+const FUND_MARK = 'arc'
+
+function fundMarkSVG(size) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${FUND_MARKS[FUND_MARK]}</svg>`
+}
+
+/** favicon: הסימן על ריבוע מעוגל כהה, כדי שייקרא גם על לשונית בהירה. */
+function fundFaviconDataURI() {
+  const mark = FUND_MARKS[FUND_MARK].replace(/currentColor/g, '#e8edff')
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">`
+    + `<rect width="32" height="32" rx="8" fill="#0d1024"/>`
+    + `<g transform="translate(4 4) scale(1)">`
+    + `<svg width="24" height="24" viewBox="0 0 24 24">${mark}</svg></g></svg>`
+  return 'data:image/svg+xml,' + encodeURIComponent(svg)
+}
+
+function applyFundMark() {
+  const brand = document.querySelector('.sidebar-brand .brand-mark')
+  if (brand) brand.innerHTML = fundMarkSVG(40)
+  let link = document.querySelector('link[rel="icon"]')
+  if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link) }
+  link.type = 'image/svg+xml'
+  link.href = fundFaviconDataURI()
+}
+
 /* ===== אייקונים ===== */
 const UI_ICONS = {
   gauge:      '<circle cx="12" cy="12" r="9"/><path d="M12 12l4-4"/>',

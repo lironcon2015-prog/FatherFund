@@ -1,0 +1,327 @@
+<meta charset="utf-8">
+<title>סימן קרן הקצבה</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap">
+<style>
+  /* dark-first: ערכת האפליקציה היא הבסיס, והבהיר הוא ההיפוך. */
+  :root {
+    --ground:#060608; --surface:#0c0d11; --raised:#12131a;
+    --line:rgba(255,255,255,.06); --line-bright:rgba(255,255,255,.12);
+    --ink:#f6f7fb; --ink-2:#8b94a7; --ink-3:#565e6e;
+    --accent:#4f8bff; --violet:#8b5cf6; --good:#2dd4a0;
+    --grad:linear-gradient(120deg,#4f8bff 0%,#8b5cf6 100%);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --ground:#eceef3; --surface:#ffffff; --raised:#f4f5f9;
+      --line:rgba(15,23,42,.08); --line-bright:rgba(15,23,42,.16);
+      --ink:#0e1420; --ink-2:#4a5568; --ink-3:#8b94a7; --good:#0eaa7f;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground:#eceef3; --surface:#ffffff; --raised:#f4f5f9;
+    --line:rgba(15,23,42,.08); --line-bright:rgba(15,23,42,.16);
+    --ink:#0e1420; --ink-2:#4a5568; --ink-3:#8b94a7; --good:#0eaa7f;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{direction:rtl}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:Heebo,system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    font-variant-numeric:tabular-nums;
+  }
+  .wrap{max-width:70rem;margin:0 auto;padding:clamp(1.5rem,4vw,3.5rem) clamp(1rem,4vw,2.5rem) 5rem}
+
+  .eyebrow{font-size:.68rem;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+  h1{font-size:clamp(1.9rem,5vw,2.9rem);font-weight:800;letter-spacing:-.035em;margin:.35rem 0 .6rem;text-wrap:balance}
+  .lede{color:var(--ink-2);max-width:62ch;font-size:1.02rem;margin:0}
+
+  /* הקריטריונים הם מידע: אלה הגדלים שהסימן חייב לעמוד בהם */
+  .brief{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;margin:2.25rem 0 3.5rem;
+  }
+  .brief div{background:var(--surface);padding:.85rem 1rem}
+  .brief dt{font-size:.7rem;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+  .brief dd{margin:.15rem 0 0;font-size:.9rem;color:var(--ink)}
+
+  .option{border-top:1px solid var(--line);padding-top:2.5rem;margin-top:3rem}
+  .option:first-of-type{border-top:none;margin-top:0;padding-top:0}
+  .opt-head{display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap;margin-bottom:.2rem}
+  .opt-letter{
+    font-size:.72rem;font-weight:800;letter-spacing:.12em;color:var(--accent);
+    border:1px solid var(--accent);border-radius:999px;padding:.1rem .6rem;
+  }
+  .opt-name{font-size:1.45rem;font-weight:800;letter-spacing:-.02em}
+  .pick{
+    font-size:.7rem;font-weight:700;color:var(--good);
+    background:color-mix(in srgb,var(--good) 14%,transparent);
+    border-radius:999px;padding:.15rem .65rem;
+  }
+  .opt-idea{color:var(--ink-2);max-width:60ch;margin:.4rem 0 1.6rem}
+  .opt-idea b{color:var(--ink);font-weight:600}
+
+  /* שני רקעים זה לצד זה — הסימן חייב לעבוד על שניהם, ולכן שניהם מוצגים תמיד */
+  .grounds{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.4rem}
+  .ground-tile{
+    display:grid;place-items:center;gap:.7rem;padding:2rem 1rem 1.1rem;
+    border-radius:18px;border:1px solid var(--line);
+  }
+  .g-dark{background:#060608;color:#f6f7fb}
+  .g-light{background:#eceef3;color:#0e1420}
+  .g-label{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;opacity:.45}
+
+  /* סולם הגדלים — כל מידה נושאת את המקום שבו היא באמת מופיעה */
+  .sizes{
+    display:flex;flex-wrap:wrap;gap:1.4rem;align-items:flex-end;
+    background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    padding:1.3rem 1.5rem;margin-bottom:1rem;
+  }
+  .size{display:flex;flex-direction:column;align-items:center;gap:.55rem;text-align:center}
+  .size-cap{font-size:.68rem;color:var(--ink-3);line-height:1.35}
+  .size-cap b{display:block;color:var(--ink-2);font-weight:600;font-size:.72rem}
+  .badge{
+    display:grid;place-items:center;border-radius:14px;background:var(--grad);color:#fff;
+    box-shadow:0 8px 24px rgba(99,102,241,.45),inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .b40{width:40px;height:40px}
+  .b64{width:64px;height:64px;border-radius:18px}
+
+  /* הקשר אמיתי: ה-rail ולשונית הדפדפן */
+  .contexts{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start}
+  .rail{
+    width:96px;background:var(--surface);border:1px solid var(--line);border-radius:26px;
+    padding:.9rem .4rem;display:flex;flex-direction:column;align-items:center;gap:.6rem;
+  }
+  .rail-brand{display:flex;flex-direction:column;align-items:center;gap:.25rem}
+  .rail-brand span{font-size:.6rem;font-weight:800;color:var(--accent);text-align:center;line-height:1.15}
+  .rail-item{
+    width:76px;padding:.45rem 0;border-radius:16px;display:flex;flex-direction:column;
+    align-items:center;gap:.22rem;font-size:.58rem;color:var(--ink-3);
+    border:1px solid transparent;
+  }
+  .rail-item.on{
+    background:linear-gradient(150deg,rgba(79,139,255,.2),rgba(139,92,246,.12));
+    color:#8fb4ff;border-color:rgba(110,140,255,.3);font-weight:700;
+  }
+  .tabstrip{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:.75rem;display:flex;flex-direction:column;gap:.6rem}
+  .tab{
+    display:flex;align-items:center;gap:.5rem;background:var(--surface);
+    border:1px solid var(--line);border-radius:10px 10px 4px 4px;padding:.45rem .7rem;width:min(21rem,100%);
+  }
+  .tab span{font-size:.78rem;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tab-note{font-size:.7rem;color:var(--ink-3)}
+
+  .watch{
+    display:flex;gap:.55rem;margin-top:1rem;font-size:.82rem;color:var(--ink-2);
+    border-inline-start:2px solid var(--line-bright);padding-inline-start:.8rem;max-width:62ch;
+  }
+  .watch b{color:var(--ink);font-weight:600}
+
+  .verdict{
+    margin-top:3.5rem;background:var(--surface);border:1px solid var(--line);
+    border-radius:22px;padding:1.75rem 2rem;
+  }
+  .verdict h2{font-size:1.2rem;font-weight:800;margin:0 0 .5rem;letter-spacing:-.02em}
+  .verdict p{color:var(--ink-2);margin:.5rem 0;max-width:62ch}
+  .verdict code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;
+    background:var(--raised);border:1px solid var(--line);border-radius:6px;padding:.1em .45em;
+  }
+  @media (max-width:640px){
+    .grounds{grid-template-columns:1fr}
+    .contexts{grid-template-columns:1fr}
+    .sizes{gap:1.1rem;padding:1.1rem}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- א · רובד: שלוש שכבות, הרחבה והמלאה בתחתית -->
+    <symbol id="m-rung" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M8.5 7h7"/><path d="M6.5 12h11"/>
+      </g>
+      <rect x="4" y="15.8" width="16" height="3.4" rx="1.7" fill="currentColor"/>
+    </symbol>
+    <!-- ב · קשת הכיסוי: טבעת של 300° שנשברת בסף. הפתח בתחתית והשבר
+         בראש הם מה שהופך אותה לחוגה ולא לכיפה. -->
+    <symbol id="m-arc" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+        <path d="M8 19.9A8 8 0 0 1 10.6 5.1"/>
+        <path d="M13.4 5.1A8 8 0 0 1 16 19.9"/>
+      </g>
+      <circle cx="12" cy="4.6" r="1.75" fill="currentColor"/>
+    </symbol>
+    <!-- ג · גשר: קשת שנושאת מפתח, עומדת על קרקע -->
+    <symbol id="m-arch" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 20v-7a6 6 0 0 1 12 0v7"/><path d="M3 20h18"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">קרן הקצבה · סימן האפליקציה</p>
+    <h1>שלושה סימנים, שלושה רעיונות</h1>
+    <p class="lede">
+      לא שלוש וריאציות של אותה צורה. כל אחת מהן אומרת דבר אחר על מה שהאפליקציה
+      עושה: <b>המנגנון</b>, <b>המדד</b>, או <b>המטרה</b>. הסימן הנוכחי — עיגול עם מחוג —
+      אומר "שעון", וזה נכון לכל אפליקציה בעולם.
+    </p>
+
+    <dl class="brief">
+      <div><dt>לשונית דפדפן</dt><dd>16px · מונוכרום</dd></div>
+      <div><dt>תג ה-rail</dt><dd>40px · לבן על גרדיאנט</dd></div>
+      <div><dt>PWA מותקנת</dt><dd>192 ו-512px</dd></div>
+      <div><dt>רקעים</dt><dd>כהה ובהיר</dd></div>
+    </dl>
+  </header>
+
+  <!-- ============ א ============ -->
+  <section class="option">
+    <div class="opt-head">
+      <span class="opt-letter">אפשרות א</span>
+      <span class="opt-name">רובד</span>
+    </div>
+    <p class="opt-idea">
+      <b>המנגנון.</b> שלוש שכבות, והתחתונה רחבה ומלאה — רובד הנזילות שנושא את
+      השאר ושממנו מושכים ראשון. זה האובייקט הכי ייחודי לקרן הזו: לא תיק השקעות,
+      אלא מבנה מדורג שבו יש סדר משיכה קבוע.
+    </p>
+
+    <div class="grounds">
+      <div class="ground-tile g-dark"><svg width="112" height="112"><use href="#m-rung"/></svg><span class="g-label">רקע כהה</span></div>
+      <div class="ground-tile g-light"><svg width="112" height="112"><use href="#m-rung"/></svg><span class="g-label">רקע בהיר</span></div>
+    </div>
+
+    <div class="sizes">
+      <div class="size"><div class="badge b64"><svg width="46" height="46"><use href="#m-rung"/></svg></div><span class="size-cap"><b>64px</b>מסך פתיחה</span></div>
+      <div class="size"><div class="badge b40"><svg width="22" height="22"><use href="#m-rung"/></svg></div><span class="size-cap"><b>40px</b>תג ה-rail</span></div>
+      <div class="size"><svg width="24" height="24"><use href="#m-rung"/></svg><span class="size-cap"><b>24px</b>ניווט</span></div>
+      <div class="size"><svg width="16" height="16"><use href="#m-rung"/></svg><span class="size-cap"><b>16px</b>לשונית</span></div>
+    </div>
+
+    <div class="contexts">
+      <div class="rail">
+        <div class="rail-brand"><div class="badge b40"><svg width="22" height="22"><use href="#m-rung"/></svg></div><span>קרן הקצבה</span></div>
+        <div class="rail-item on"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="7.5"/><path d="M10 10l3.8-3" stroke-linecap="round"/></svg>מצב</div>
+        <div class="rail-item"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 6h15v9h-15z"/><path d="M14 10.5h2.5"/></svg>עדכון תיק</div>
+      </div>
+      <div class="tabstrip">
+        <div class="tab"><svg width="16" height="16"><use href="#m-rung"/></svg><span>קרן הקצבה</span></div>
+        <p class="tab-note">בלשונית, לצד שאר הלשוניות הפתוחות.</p>
+      </div>
+    </div>
+
+    <p class="watch"><span><b>מה לשים לב.</b> שלוש שורות אופקיות מסתכנות בקריאה כתפריט המבורגר.
+    הרוחב היורד והמילוי בתחתית הם מה שמפריד — בדוק שהם עדיין נקראים ב-16px.</span></p>
+  </section>
+
+  <!-- ============ ב ============ -->
+  <section class="option">
+    <div class="opt-head">
+      <span class="opt-letter">אפשרות ב</span>
+      <span class="opt-name">קשת הכיסוי</span>
+      <span class="pick">ההמלצה שלי</span>
+    </div>
+    <p class="opt-idea">
+      <b>המדד.</b> קשת שנשברת בנקודה אחת, והנקודה היא הסף — יחס כיסוי 1.00.
+      אין מחוג ואין סקאלה, כי אין כאן "כמה השגת" אלא "איפה אתה ביחס לנדרש". זה
+      בדיוק העיקרון שהאפליקציה בנויה סביבו: המסגור היחיד הוא מול הנדרש לכיסוי,
+      לעולם לא מול השיא.
+    </p>
+
+    <div class="grounds">
+      <div class="ground-tile g-dark"><svg width="112" height="112"><use href="#m-arc"/></svg><span class="g-label">רקע כהה</span></div>
+      <div class="ground-tile g-light"><svg width="112" height="112"><use href="#m-arc"/></svg><span class="g-label">רקע בהיר</span></div>
+    </div>
+
+    <div class="sizes">
+      <div class="size"><div class="badge b64"><svg width="46" height="46"><use href="#m-arc"/></svg></div><span class="size-cap"><b>64px</b>מסך פתיחה</span></div>
+      <div class="size"><div class="badge b40"><svg width="22" height="22"><use href="#m-arc"/></svg></div><span class="size-cap"><b>40px</b>תג ה-rail</span></div>
+      <div class="size"><svg width="24" height="24"><use href="#m-arc"/></svg><span class="size-cap"><b>24px</b>ניווט</span></div>
+      <div class="size"><svg width="16" height="16"><use href="#m-arc"/></svg><span class="size-cap"><b>16px</b>לשונית</span></div>
+    </div>
+
+    <div class="contexts">
+      <div class="rail">
+        <div class="rail-brand"><div class="badge b40"><svg width="22" height="22"><use href="#m-arc"/></svg></div><span>קרן הקצבה</span></div>
+        <div class="rail-item on"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="7.5"/><path d="M10 10l3.8-3" stroke-linecap="round"/></svg>מצב</div>
+        <div class="rail-item"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 6h15v9h-15z"/><path d="M14 10.5h2.5"/></svg>עדכון תיק</div>
+      </div>
+      <div class="tabstrip">
+        <div class="tab"><svg width="16" height="16"><use href="#m-arc"/></svg><span>קרן הקצבה</span></div>
+        <p class="tab-note">בלשונית, לצד שאר הלשוניות הפתוחות.</p>
+      </div>
+    </div>
+
+    <p class="watch"><span><b>מה לשים לב.</b> הנקודה היא הסף, וב-16px היא יורדת לכשני פיקסלים.
+    אם היא נעלמת — הסימן הופך לטבעת שבורה, וזה עדיין סימן מובחן. זה הכשל הרך
+    שבחרתי בו: הוא מאבד ניואנס, לא זהות.</span></p>
+  </section>
+
+  <!-- ============ ג ============ -->
+  <section class="option">
+    <div class="opt-head">
+      <span class="opt-letter">אפשרות ג</span>
+      <span class="opt-name">גשר</span>
+    </div>
+    <p class="opt-idea">
+      <b>המטרה.</b> קשת שעומדת על קרקע וגושרת על מפתח — 26 השנים שבין היום לגיל
+      95. זה הסימן הפחות פיננסי מבין השלושה, וזו נקודת החוזק שלו: האפליקציה הזו
+      אינה כלי השקעות, היא הסדר בין אחים לאב. גשר הוא מבנה שנבנה פעם אחת ומחזיק.
+    </p>
+
+    <div class="grounds">
+      <div class="ground-tile g-dark"><svg width="112" height="112"><use href="#m-arch"/></svg><span class="g-label">רקע כהה</span></div>
+      <div class="ground-tile g-light"><svg width="112" height="112"><use href="#m-arch"/></svg><span class="g-label">רקע בהיר</span></div>
+    </div>
+
+    <div class="sizes">
+      <div class="size"><div class="badge b64"><svg width="46" height="46"><use href="#m-arch"/></svg></div><span class="size-cap"><b>64px</b>מסך פתיחה</span></div>
+      <div class="size"><div class="badge b40"><svg width="22" height="22"><use href="#m-arch"/></svg></div><span class="size-cap"><b>40px</b>תג ה-rail</span></div>
+      <div class="size"><svg width="24" height="24"><use href="#m-arch"/></svg><span class="size-cap"><b>24px</b>ניווט</span></div>
+      <div class="size"><svg width="16" height="16"><use href="#m-arch"/></svg><span class="size-cap"><b>16px</b>לשונית</span></div>
+    </div>
+
+    <div class="contexts">
+      <div class="rail">
+        <div class="rail-brand"><div class="badge b40"><svg width="22" height="22"><use href="#m-arch"/></svg></div><span>קרן הקצבה</span></div>
+        <div class="rail-item on"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="7.5"/><path d="M10 10l3.8-3" stroke-linecap="round"/></svg>מצב</div>
+        <div class="rail-item"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 6h15v9h-15z"/><path d="M14 10.5h2.5"/></svg>עדכון תיק</div>
+      </div>
+      <div class="tabstrip">
+        <div class="tab"><svg width="16" height="16"><use href="#m-arch"/></svg><span>קרן הקצבה</span></div>
+        <p class="tab-note">בלשונית, לצד שאר הלשוניות הפתוחות.</p>
+      </div>
+    </div>
+
+    <p class="watch"><span><b>מה לשים לב.</b> הסילואטה הכי חזקה מהשלוש בגדלים קטנים, אבל היא
+    גם הכי פתוחה לפרשנות — יש מי שיקרא בה שער או מנהרה. אם זה מפריע, זו הסיבה
+    היחידה לפסול אותה.</span></p>
+  </section>
+
+  <div class="verdict">
+    <h2>ההמלצה: ב · קשת הכיסוי</h2>
+    <p>
+      א׳ מתאר איך הקרן עובדת, ג׳ מתאר למה היא קיימת. ב׳ מתאר את המספר שהמשתמש
+      פותח את האפליקציה כדי לראות, והוא היחיד מהשלושה שאי אפשר לקחת ולהדביק על
+      אפליקציה אחרת בלי שהמשמעות תישבר.
+    </p>
+    <p>
+      ג׳ היא הבחירה החלופית הרצינית — היא נראית טוב יותר ב-16px, והיא הסימן היחיד
+      כאן שיש בו חום. אם הקהל של הסימן הוא האחים ולא אתה, קח את ג׳.
+    </p>
+    <p>
+      <b>ההחלפה זולה.</b> שלושת הסימנים יושבים ברג׳יסטרי אחד ב-<code>ui.js</code>,
+      ובחירה היא שינוי של קבוע אחד — <code>FUND_MARK</code>. משם נגזרים אוטומטית
+      תג ה-rail, ה-favicon ואייקוני ה-PWA.
+    </p>
+  </div>
+</div>

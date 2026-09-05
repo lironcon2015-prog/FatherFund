@@ -1,11 +1,12 @@
 /* Service Worker — network-first ל-HTML ול-version.json, cache-first לשאר.
    הנתונים לא עוברים כאן: הם ב-IndexedDB וב-Drive. */
-const CACHE_VERSION = 'fund-v1.1.0'
+const CACHE_VERSION = 'fund-v1.1.1'
 const ASSETS = [
   './', './index.html', './style.css',
   './model.js', './engine.js', './rules.js', './ui.js', './drive.js', './store.js',
   './reports.js', './screens-core.js', './screens-review.js', './actuary.js', './app.js',
   './mc.worker.js', './manifest.json',
+  './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
 ]
 
 self.addEventListener('install', e => {
