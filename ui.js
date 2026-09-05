@@ -31,7 +31,7 @@ const FUND_MARKS = {
 }
 
 /* ← ההחלפה היחידה שנדרשת כדי לבחור סימן אחר. */
-const FUND_MARK = 'arc'
+const FUND_MARK = 'rung'
 
 function fundMarkSVG(size) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${FUND_MARKS[FUND_MARK]}</svg>`
