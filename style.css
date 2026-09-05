@@ -304,6 +304,12 @@ input:not([type=checkbox]), select, textarea {
 :root[data-theme="light"] select,
 :root[data-theme="light"] textarea { background: var(--bg-input); border-color: var(--border); }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+/* שדות מספר ותאריך נשארים LTR. בכיוון RTL הדפדפן מסדר מחדש את מקטעי התאריך
+   ומדפיס "Sep 2026 5" במקום "5 Sep 2026"; היישור לימין משאיר אותם במקום
+   הנכון בטופס העברי. */
+input[type="number"], input[type="date"], input[type="month"], input[type="time"] {
+  direction: ltr; text-align: right;
+}
 input.num { max-width: 150px; }
 textarea { resize: vertical; }
 .fld { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .9rem; }
@@ -520,4 +526,27 @@ textarea { resize: vertical; }
   .bento-hero-amount { font-size: 2.4rem; }
   .bento-stat { max-width: none; }
   .two-col { grid-template-columns: 1fr; }
+
+  /* ===== טבלת הנכסים במובייל =====
+     חמש עמודות ב-393px דחסו את שדות הסכום עד שהם חתכו את הערך, ואת שורת
+     המטא-דאטה לשבירה בכל מפריד. זה מסך ההזנה שנפתח בטלפון אחת לרבעון,
+     ולכן הוא נפרק לשורות ולא נגלל לרוחב. */
+  .assets-table, .assets-table tbody, .assets-table tr, .assets-table td { display: block; width: 100%; }
+  .assets-table thead { display: none; }
+  .assets-table tr {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--bg-elevated); padding: .9rem 1rem; margin-bottom: .7rem;
+  }
+  .assets-table tbody tr:hover td { background: transparent; }
+  .assets-table td {
+    border: none; padding: .35rem 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .assets-table td::before {
+    content: attr(data-label); color: var(--text-muted); font-size: .78rem; flex: none;
+  }
+  .assets-table td:first-child { display: block; padding: 0 0 .6rem; margin-bottom: .35rem; border-bottom: 1px solid var(--border); }
+  .assets-table td:first-child::before { content: none; }
+  .assets-table td:last-child { justify-content: space-between; padding-top: .5rem; }
+  .assets-table input.num { max-width: 11rem; }
 }
