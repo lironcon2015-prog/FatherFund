@@ -2,7 +2,7 @@
    app.js — עיצוב מספרים, ניווט, אתחול.
    =========================================================================== */
 
-const APP_VERSION = '1.1.5'
+const APP_VERSION = '1.1.6'
 
 /* ===== פורמט ===== */
 function ils(n, digits) {
@@ -111,6 +111,7 @@ async function boot() {
     navigate(SCREENS.includes(h) ? h : 'status', true)
   })
   scheduleCheck()
+  initUpdates()
 }
 
 /* §3 — התראה קבועה שהמערכת מייצרת מעצמה, לא בתגובה לפעולה. */
@@ -127,6 +128,107 @@ function scheduleCheck() {
     toast(`הבקרה התלת-שנתית עברה את מועדה (${dmy(w.next)}).`, { type: 'warn', duration: 9000,
       action: { label: 'פתח בקרה', onClick: () => navigate('review') } })
   }
+}
+
+/* ===========================================================================
+   עדכוני גרסה (PWA)
+
+   בלי המנגנון הזה משתמש שמריץ את האפליקציה כאפליקציה מותקנת נשאר על גרסה
+   ישנה בלי שום סימן: אין לו רענון, ה-Service Worker מגיש מה שיש לו, והמסך
+   נראה תקין לחלוטין. באפליקציה שאמורה לחיות 26 שנה זה הכשל השקט הגרוע ביותר.
+   =========================================================================== */
+
+let _swReg = null
+
+function initUpdates() {
+  if (!('serviceWorker' in navigator)) return
+  navigator.serviceWorker.register('./sw.js?v=' + APP_VERSION, { updateViaCache: 'none' })
+    .then(reg => {
+      _swReg = reg
+      if (reg.waiting && navigator.serviceWorker.controller) showUpdateToast()
+      watchWorker(reg.installing)
+      reg.addEventListener('updatefound', () => watchWorker(reg.installing))
+      reg.update().catch(() => {})
+    })
+    .catch(() => {})
+
+  /* אפליקציה מותקנת נשארת בזיכרון ולא נטענת מחדש בחזרה אליה. הבדיקה
+     בחזרה למסך היא הרגע היחיד שבו יש הזדמנות לזהות גרסה חדשה. */
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      if (_swReg) _swReg.update().catch(() => {})
+      checkForUpdate({ silent: true })
+    }
+  })
+}
+
+function watchWorker(w) {
+  if (!w) return
+  w.addEventListener('statechange', () => {
+    if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdateToast()
+  })
+}
+
+let _updateToastShown = false
+function showUpdateToast() {
+  if (_updateToastShown) return
+  _updateToastShown = true
+  toast('גרסה חדשה זמינה.', { type: 'info', duration: 0,
+    action: { label: 'עדכן עכשיו', onClick: () => hardResetAndReload() } })
+}
+
+/**
+ * משווה את הגרסה שרצה לזו שבשרת.
+ * `silent` — לא מציג כלום כששום דבר לא השתנה (הבדיקה האוטומטית).
+ */
+async function checkForUpdate(opts) {
+  const o = opts || {}
+  const el = document.getElementById('updateMsg')
+  if (el && !o.silent) { el.textContent = 'בודק…'; el.className = 'muted' }
+  try {
+    const r = await fetch('./version.json?t=' + Date.now(), { cache: 'no-store' })
+    if (!r.ok) throw new Error('HTTP ' + r.status)
+    const info = await r.json()
+    if (info.version && info.version !== APP_VERSION) {
+      if (el) { el.textContent = `בשרת יש ${info.version}, כאן רצה ${APP_VERSION}.`; el.className = 'neg' }
+      if (o.silent) showUpdateToast()
+      else if (await confirmDialog(`נמצאה גרסה ${info.version}\nכאן רצה ${APP_VERSION}. לעדכן ולרענן עכשיו?`, { confirmText: 'עדכן' })) {
+        await hardResetAndReload()
+      }
+      return { current: APP_VERSION, remote: info.version, stale: true }
+    }
+    if (el && !o.silent) { el.textContent = `מעודכן — גרסה ${APP_VERSION}.`; el.className = 'pos' }
+    return { current: APP_VERSION, remote: info.version, stale: false }
+  } catch (e) {
+    if (el && !o.silent) { el.textContent = 'לא ניתן לבדוק: ' + e.message; el.className = 'neg' }
+    return { error: e.message }
+  }
+}
+
+/**
+ * המסלול היחיד שעובד באמת ב-iOS. הנתיב הרך (skipWaiting + postMessage)
+ * נתקע שם: מוחקים כל cache, מבטלים רישום של כל Service Worker, וטוענים
+ * מחדש עם פרמטר שובר-cache כדי שגם ה-HTTP cache של הדפדפן לא יגיש ישן.
+ *
+ * הנתונים אינם ב-cache — הם ב-IndexedDB וב-Drive — ולכן איפוס כאן אינו
+ * מוחק דבר שלא ניתן לשחזור.
+ */
+async function hardResetAndReload() {
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys()
+      await Promise.all(keys.map(k => caches.delete(k)))
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(regs.map(r => r.unregister()))
+    }
+  } catch (e) {
+    console.warn('איפוס cache נכשל', e)
+  }
+  const u = new URL(location.href)
+  u.searchParams.set('r', Date.now().toString(36))
+  location.replace(u.toString())
 }
 
 document.addEventListener('DOMContentLoaded', boot)

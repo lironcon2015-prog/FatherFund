@@ -1,6 +1,6 @@
 /* Service Worker — network-first ל-HTML ול-version.json, cache-first לשאר.
    הנתונים לא עוברים כאן: הם ב-IndexedDB וב-Drive. */
-const CACHE_VERSION = 'fund-v1.1.5'
+const CACHE_VERSION = 'fund-v1.1.6'
 const ASSETS = [
   './', './index.html', './style.css',
   './model.js', './engine.js', './rules.js', './ui.js', './drive.js', './store.js',
@@ -10,8 +10,15 @@ const ASSETS = [
   './icons/apple-touch-icon.png',
 ]
 
+/* קאשינג פר-קובץ ולא addAll: ב-addAll מספיק שקובץ אחד יחזיר 404 כדי
+   שההתקנה כולה תיכשל, ואז ה-SW הישן ממשיך להגיש **לנצח** ובשקט. זה בדיוק
+   המצב שבו המשתמש רואה גרסה ישנה בלי שום סימן לכך שמשהו נכשל. */
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE_VERSION).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()))
+  e.waitUntil((async () => {
+    const c = await caches.open(CACHE_VERSION)
+    await Promise.all(ASSETS.map(u => c.add(u).catch(err => console.warn('SW: לא נשמר', u, err))))
+    await self.skipWaiting()
+  })())
 })
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks =>
