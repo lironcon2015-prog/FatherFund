@@ -108,7 +108,9 @@ code { font-family: ui-monospace, monospace; font-size: .88em; background: var(-
   border-radius: 26px; background: var(--bg-surface);
   border: var(--glass-border); box-shadow: var(--glass-shadow);
   display: flex; flex-direction: column; align-items: center; gap: .9rem; padding: 1.1rem .5rem;
-  z-index: 100; overflow-y: auto; scrollbar-width: none;
+  /* מעל שני פסי הניווט (150). המגירה במובייל היא שכבה מודאלית — כשהיא
+     מתחתיהם הם חותכים לה את התג למעלה ואת שורת הגרסה למטה. */
+  z-index: 200; overflow-y: auto; scrollbar-width: none;
 }
 .sidebar::-webkit-scrollbar { display: none; }
 .sidebar-brand {
@@ -139,7 +141,8 @@ code { font-family: ui-monospace, monospace; font-size: .88em; background: var(-
 :root[data-theme="light"] .nav-link.active { color: #2b4acb; }
 .nav-link svg { flex-shrink: 0; width: 20px; height: 20px; }
 .sidebar-foot { font-size: .6rem; color: var(--text-muted); margin-top: auto; text-align: center; }
-.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 99; }
+.drawer-close { display: none; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 190; }
 
 /* ===== תוכן ===== */
 .main-content { margin-right: calc(var(--sidebar-w) + 32px); min-height: 100vh; padding: 2rem; }
@@ -459,7 +462,9 @@ textarea { resize: vertical; }
 
   /* ה-rail חוזר להיות drawer של שורות. */
   .sidebar {
-    top: 0; right: 0; width: min(280px, 80vw); height: 100vh;
+    /* dvh ולא vh: ב-Safari במובייל 100vh גבוה מהאזור הנראה, והתחתית של
+       המגירה — שם יושבת שורת הגרסה — יורדת מתחת לקו הגלילה. */
+    top: 0; right: 0; width: min(280px, 80vw); height: 100vh; height: 100dvh;
     border-radius: 0; box-shadow: -8px 0 24px rgba(0,0,0,.4);
     transform: translateX(100%); transition: transform .22s ease;
     padding: 1.25rem 1rem;
@@ -470,7 +475,22 @@ textarea { resize: vertical; }
   .sidebar.open { transform: translateX(0); }
   .sidebar-overlay { background: rgba(0,0,0,.5); backdrop-filter: blur(2px); }
   .sidebar-overlay.open { display: block; }
-  .sidebar-brand { flex-direction: row; font-size: 1.05rem; gap: .6rem; padding: .25rem .25rem 1rem; border-bottom: 1px solid var(--border); margin-bottom: .5rem; color: var(--text-primary); }
+  /* השם לא נשבר לשתי שורות: צ'יפ הסנכרון יורד לשורה משלו כשאין מקום. */
+  .sidebar-brand {
+    flex-direction: row; flex-wrap: wrap; align-items: center;
+    font-size: 1.05rem; gap: .5rem; padding: .25rem .25rem 1rem;
+    border-bottom: 1px solid var(--border); margin-bottom: .5rem; color: var(--text-primary);
+  }
+  .sidebar-brand .brand-name { white-space: nowrap; }
+  .sidebar-brand .sync-status { flex: none; order: 3; margin-inline-start: 46px; }
+  /* המגירה מכסה את כפתור ההמבורגר, ולכן היא נושאת סגירה משלה. */
+  .drawer-close {
+    display: flex; align-items: center; justify-content: center;
+    margin-inline-start: auto; width: 36px; height: 36px; flex: none;
+    background: none; border: none; border-radius: 10px;
+    color: var(--text-muted); font-family: inherit; font-size: 1.05rem; cursor: pointer;
+  }
+  .drawer-close:hover, .drawer-close:active { background: var(--bg-hover); color: var(--text-primary); }
   .brand-mark { width: 34px; height: 34px; border-radius: 12px; }
   .brand-mark svg { width: 19px; height: 19px; }
   .sidebar-nav { gap: .15rem; align-items: stretch; }
