@@ -1,7 +1,13 @@
-/* מפיק את icons/*.png מהסימן הפעיל ב-ui.js.
-   הרץ אחרי כל שינוי של FUND_MARK:  node tools/gen-icons.mjs
-   דורש playwright-core. הסימן נקרא מ-ui.js ולא מועתק לכאן — שתי הגדרות של
-   אותו סימן מייצרות גרסה שבה הלשונית מראה דבר אחד והאפליקציה דבר אחר. */
+/* מפיק את כל הנגזרות של סימן האפליקציה מהסימן הפעיל ב-ui.js:
+   icons/*.png, וגם ה-favicon הסטטי ותג המותג ב-index.html.
+
+     node tools/gen-icons.mjs
+
+   הרץ אחרי כל שינוי של FUND_MARK. דורש playwright-core.
+
+   הסימן נקרא מ-ui.js ולא מועתק לכאן, וה-HTML נכתב מחדש ולא מתוחזק ביד:
+   כל שכפול של הגדרת הסימן מייצר גרסה שבה הלשונית מראה דבר אחד והאפליקציה
+   דבר אחר, וזה בדיוק סוג הפער שאיש לא בודק. */
 import { chromium } from 'playwright-core'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -24,6 +30,29 @@ const page = (px, scale, radius) => `<meta charset="utf-8"><body style="margin:0
   <rect width="100" height="100" rx="${radius}" fill="url(#g)"/>
   <g transform="translate(${50 - scale * 12} ${50 - scale * 12}) scale(${scale})" color="#ffffff">${body}</g>
 </svg></body>`
+
+/* ===== ה-HTML הסטטי =====
+   הוא רק מה שנראה לפני ש-applyFundMark() רץ, אבל בלעדיו יש הבזק של הסימן
+   הישן בכל טעינה — ובלשונית, שנשמרת ב-bookmark, גם אחריו. */
+const between = (src, tag, body) =>
+  src.replace(new RegExp(`(<!--MARK:${tag}-->)[\\s\\S]*?(<!--/MARK:${tag}-->)`), `$1${body}$2`)
+
+const faviconURI = () => {
+  const inked = body.replace(/currentColor/g, '#e8edff')
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">`
+    + `<rect width="32" height="32" rx="8" fill="#0d1024"/>`
+    + `<g transform="translate(4 4)">${inked}</g></svg>`
+  return 'data:image/svg+xml,' + encodeURIComponent(svg)
+}
+
+const htmlPath = path.join(root, 'index.html')
+let html = fs.readFileSync(htmlPath, 'utf8')
+html = between(html, 'favicon',
+  `<link rel="icon" type="image/svg+xml" href="${faviconURI()}">`)
+html = between(html, 'brand',
+  `<svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`)
+fs.writeFileSync(htmlPath, html)
+console.log(`index.html  (favicon + brand)`)
 
 const b = await chromium.launch(exe ? { executablePath: exe } : {})
 /* maskable הוא full-bleed: הסימן קטן יותר כדי להישאר בתוך אזור הבטיחות
