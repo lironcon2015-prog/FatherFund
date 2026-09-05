@@ -484,6 +484,20 @@ function renderStorage() {
   const el = document.getElementById('storageBody')
   el.innerHTML = `
     <div class="card">
+      <div class="card-title">גרסה</div>
+      <div class="kv"><span>רצה במכשיר הזה</span><strong id="runningVersion">${escHtml(APP_VERSION)}</strong></div>
+      <p class="muted">זו אפליקציה מותקנת, ולכן היא לא נטענת מחדש מעצמה. אם מסך
+      נראה ישן — זו הבדיקה שתגיד לך אם באמת יש גרסה חדשה, ותתקין אותה.</p>
+      <div class="sheet-actions">
+        <button class="btn-primary" onclick="checkForUpdate()">בדוק עדכון</button>
+        <button class="btn-ghost" onclick="hardResetAndReload()">אלץ רענון מלא</button>
+      </div>
+      <div id="updateMsg" class="muted"></div>
+      <p class="muted">"אלץ רענון מלא" מוחק את ה-cache ומבטל את ה-Service Worker.
+      הנתונים לא נמחקים — הם ב-IndexedDB וב-Drive, לא ב-cache.</p>
+    </div>
+
+    <div class="card">
       <div class="card-title">שכבת האחסון</div>
       <p class="muted">Apps Script Web App שרץ בחשבון שלך. אין OAuth ואין מסך התחברות —
       הסקריפט הוא זה שנוגע ב-Drive. הוראות הפריסה ב-<code>apps-script/README.md</code>.</p>
