@@ -63,9 +63,7 @@ function renderStatus() {
       <p>כרגע שיעור הרווח בתיק הוא <strong>${pct(t.gainFraction)}</strong>, ולכן כדי לספק
       ${ils(C.pensionFromFund)} נטו יש למכור <strong>${ils(gross.portfolio)}</strong> ברוטו.
       תקצב בהתאם.</p>
-      <p class="muted">כל עוד רובד הנזילות מכסה את המשיכה, המכירה בפועל היא
-      ${ils(gross.actual)} — הרובד אינו נושא רווח ולכן אין בו מס. המספר שלמעלה הוא
-      מה שיקרה כשהמשיכות יגיעו מהמנייתי, וזה מה שצריך לתקצב.</p>
+      ${grossActualHTML(gross, C)}
     </div>
 
     ${refillCardHTML()}
@@ -137,6 +135,26 @@ async function commitRefill(year) {
   navigate('status')
 }
 
+/* מאיפה המשיכה מגיעה **בפועל** היום, ולא הנחה על כך.
+   הניסוח הקודם הצהיר "כל עוד הרובד מכסה את המשיכה" בלי לבדוק אם הוא מכסה —
+   ובתיק בלי רובד כלל הוא טען שאין מס על מכירה שכולה חייבת במס. */
+function grossActualHTML(g, C) {
+  if (g.coveredByRung) {
+    return `<p class="muted">רובד הנזילות מכסה את המשיכה כולה, ולכן המכירה בפועל היא
+      ${ils(g.actual)} — הרובד אינו נושא רווח ואין בו מס. המספר שלמעלה הוא מה שיקרה
+      כשהמשיכות יגיעו מהמנייתי, וזה מה שצריך לתקצב.</p>`
+  }
+  if (g.partialRung) {
+    return `<p class="muted">הרובד מכסה ${ils(g.fromCash)} מתוך ${ils(C.pensionFromFund)},
+      והיתרה מגיעה מהמנייתי. המכירה בפועל היום היא ${ils(g.actual)} ברוטו, ומס של
+      ${ils(g.tax)} נצבר עליה.</p>`
+  }
+  return `<p class="muted">רובד הנזילות אינו מכסה את המשיכה, והיא מגיעה כולה מהמנייתי.
+    המכירה בפועל היום היא ${ils(g.actual)} ברוטו עם מס של ${ils(g.tax)} — פחות מהמספר
+    שלמעלה, מפני שהיא נלקחת מהנכס בעל שיעור הרווח הנמוך ביותר. ככל שהנכס הזה נגמר
+    הברוטו מטפס אל המספר שלמעלה.</p>`
+}
+
 function tile(label, value, note, icon) {
   return `<div class="bento-stat">
     <span class="bento-stat-icon">${uiIcon(icon || 'gauge', 15)}</span>
@@ -161,9 +179,16 @@ function plannedGrossBreakdown() {
   const net = FUND.config.pensionFromFund
   const t = portfolioTotals(FUND.assets, FUND.assumptions.taxRate)
   const denom = 1 - FUND.assumptions.taxRate * t.gainFraction
+  const plan = planWithdrawal(FUND.assets, net, opts)
+  const cashIds = new Set(FUND.assets.filter(a => a.class === 'cash').map(a => a.id))
+  const fromCash = plan.legs.filter(l => cashIds.has(l.assetId)).reduce((s, l) => s + l.netDelivered, 0)
   return {
-    actual: planWithdrawal(FUND.assets, net, opts).totalGross,
+    actual: plan.totalGross,
     portfolio: denom > 0 ? net / denom : net,
+    tax: plan.taxAccrued,
+    fromCash,
+    coveredByRung: fromCash >= net - 0.5,
+    partialRung: fromCash > 0.5 && fromCash < net - 0.5,
   }
 }
 function grossSaleForPlanned() { return plannedGrossBreakdown().portfolio }
@@ -205,14 +230,14 @@ function renderPortfolio() {
   const rows = FUND.assets.map(a => {
     const p = prevMV(a.id)
     return `<tr>
-      <td>
+      <td data-label="נכס">
         <strong>${escHtml(a.name)}</strong>
         <div class="muted">${a.class === 'cash' ? 'רובד נזילות' : 'מנייתי'}${a.region !== 'n/a' ? ' · ' + (a.region === 'israel' ? 'ישראל' : 'גלובלי') : ''}${a.isLegacy ? ' · אחזקה ישנה' : ''}</div>
       </td>
-      <td><input class="num" type="number" step="0.01" id="mv_${a.id}" value="${a.marketValue}"></td>
-      <td><input class="num" type="number" step="0.01" id="cb_${a.id}" value="${a.costBasis}"></td>
-      <td class="muted">${p === null ? '—' : pct((a.marketValue - p) / (p || 1))}</td>
-      <td><button class="btn-icon" title="ערוך" onclick="editAsset('${a.id}')">${uiIcon('sliders', 16)}</button></td>
+      <td data-label="שווי שוק"><input class="num" type="number" step="0.01" id="mv_${a.id}" value="${a.marketValue}"></td>
+      <td data-label="בסיס עלות"><input class="num" type="number" step="0.01" id="cb_${a.id}" value="${a.costBasis}"></td>
+      <td data-label="שינוי מהעדכון הקודם" class="muted">${p === null ? '—' : pct((a.marketValue - p) / (p || 1))}</td>
+      <td data-label="עריכה"><button class="btn-icon" title="ערוך" onclick="editAsset('${a.id}')">${uiIcon('sliders', 16)}</button></td>
     </tr>`
   }).join('')
 
@@ -224,7 +249,7 @@ function renderPortfolio() {
       </div>
       <p class="muted">אין מחירים בזמן אמת ואין חיבור לברוקר. העדכון ידני ותקופתי, בכוונה —
       תדירות בדיקה נמוכה היא פיצ'ר ולא מגבלה.</p>
-      ${FUND.assets.length ? `<div class="tbl-wrap"><table class="data-table">
+      ${FUND.assets.length ? `<div class="tbl-wrap"><table class="data-table assets-table">
         <thead><tr><th>נכס</th><th>שווי שוק</th><th>בסיס עלות</th><th>שינוי מהעדכון הקודם</th><th></th></tr></thead>
         <tbody>${rows}</tbody></table></div>` : emptyHTML('אין נכסים.', 'הוסף נכס ראשון', 'editAsset(null)')}
       ${FUND.assets.length ? `<div class="sheet-actions">

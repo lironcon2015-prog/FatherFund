@@ -1,6 +1,6 @@
 /* Service Worker — network-first ל-HTML ול-version.json, cache-first לשאר.
    הנתונים לא עוברים כאן: הם ב-IndexedDB וב-Drive. */
-const CACHE_VERSION = 'fund-v1.1.4'
+const CACHE_VERSION = 'fund-v1.1.5'
 const ASSETS = [
   './', './index.html', './style.css',
   './model.js', './engine.js', './rules.js', './ui.js', './drive.js', './store.js',
