@@ -55,17 +55,21 @@ fs.writeFileSync(htmlPath, html)
 console.log(`index.html  (favicon + brand)`)
 
 const b = await chromium.launch(exe ? { executablePath: exe } : {})
-/* maskable הוא full-bleed: הסימן קטן יותר כדי להישאר בתוך אזור הבטיחות
-   של 80% שמערכות ההפעלה חותכות אליו. */
-for (const [file, px, scale, radius] of [
-  ['icons/icon-192.png', 192, 2.1, 22],
-  ['icons/icon-512.png', 512, 2.1, 22],
-  ['icons/icon-maskable-512.png', 512, 1.9, 0],
+/* radius 0 = full-bleed, ומערכת ההפעלה חותכת בעצמה:
+   - maskable (אנדרואיד) חותך לעיגול של 80%, ולכן הסימן שם קטן יותר.
+   - apple-touch-icon חייב להיות **אטום לחלוטין**: iOS מרכיב פינות שקופות
+     על שחור, וריבוע מעוגל משלנו היה מקבל מסגרת כהה סביב הסקוויירקל של iOS.
+   ה-192/512 הרגילים כן נושאים רדיוס — הם מוצגים כמו שהם בכרום ובאנדרואיד. */
+for (const [file, px, scale, radius, opaque] of [
+  ['icons/icon-192.png', 192, 2.1, 22, false],
+  ['icons/icon-512.png', 512, 2.1, 22, false],
+  ['icons/icon-maskable-512.png', 512, 1.9, 0, true],
+  ['icons/apple-touch-icon.png', 180, 2.1, 0, true],
 ]) {
   const p = await b.newPage({ viewport: { width: px, height: px }, deviceScaleFactor: 1 })
   await p.setContent(page(px, scale, radius))
   await p.waitForTimeout(120)
-  await p.screenshot({ path: path.join(root, file), omitBackground: true })
+  await p.screenshot({ path: path.join(root, file), omitBackground: !opaque })
   await p.close()
   console.log(`${file}  (${mark})`)
 }
